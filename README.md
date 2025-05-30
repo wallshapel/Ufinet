@@ -1,26 +1,46 @@
-### 1 Clonar el repositorio: 
+## 📘 Instrucciones para ejecutar la aplicación
+
+### 1️⃣ Clonar el repositorio
+
+Clona el repositorio con el siguiente comando:
+
+```bash
+git clone https://github.com/wallshapel/Prueba-Ufinet
+
 ```
-    git clone https://github.com/wallshapel/Prueba-Ufinet
+
+----------
+
+### 2️⃣ Instalar dependencias del frontend
+
+Accede al directorio del frontend e instala las dependencias:
+
+```bash
+cd my-book-app
+npm install
+
 ```
-### 2 Instalar dependencias del frontend
-```
-    cd my-book-app
-    npm install
-```
-### 3 Base de datos
+
+----------
+
+### 3️⃣ Configurar la base de datos
+
+1.  Asegúrate de configurar correctamente las credenciales en el archivo `application.yml`.
     
-    Tener en cuenta las credenciales de la conexión, cambiarlas en el application.yml
+2.  Crea manualmente una base de datos llamada **`bookapp`**.
+    
+    -   Esta debe pertenecer al usuario `sa` o al que hayas especificado en el archivo de configuración.
+        
+3.  Ejecuta las sentencias SQL que se encuentran en el archivo sql ubicado en la raíz para poblar la base de datos.
+    
 
-    crear manualmente la base de datos con el nombre: bookapp (debe ser propiedad del usuario sa o el que haya puesto en el .yml)
+----------
 
-    Ejecute las sentencias del archivo sql
+### 4️⃣ Iniciar el frontend
 
-### 4 Poner en marcha el frontend
+Una vez que el backend esté corriendo en el puerto **`8080`** (con todas las dependencias del `pom.xml` instaladas), ejecuta el siguiente comando para iniciar el frontend:
 
-    Con el proyecto backend una vez cargadas todas las dependencias del pom.xml y puesto en marcha en el puerto 8080 entonces poner en marcha el frontend con
+```bash
+npm run dev
 
-    ```
-        npm run dev
-    ```
-
-
+```
