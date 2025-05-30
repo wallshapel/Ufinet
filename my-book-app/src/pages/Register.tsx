@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import Spinner from '../components/common/Spinner';
 import type { RegisterForm, FormErrors } from '../types/RegisterForm';
 import { registerUser } from '../api/authApi';
-import axios from 'axios';
 
 export default function Register() {
     const [form, setForm] = useState<RegisterForm>({
@@ -59,10 +58,14 @@ export default function Register() {
 
         try {
             await registerUser(form);
+            setLoading(false);
             navigate('/');
         } catch (error: any) {
+            console.error(error);
             setLoading(false);
-            setErrors({ general: error.message });
+            setErrors({
+                general: error.message || 'No se pudo conectar con el servidor. Inténtalo más tarde.'
+            });
         }
     };
 
@@ -107,7 +110,11 @@ export default function Register() {
 
                 <button
                     type="submit"
-                    className="w-full mt-6 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded"
+                    disabled={loading}
+                    className={`w-full mt-6 font-semibold py-2 rounded ${loading
+                        ? 'bg-blue-300 cursor-not-allowed text-white'
+                        : 'bg-blue-700 hover:bg-blue-800 text-white'
+                        }`}
                 >
                     Crear cuenta
                 </button>

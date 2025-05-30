@@ -5,10 +5,11 @@ export async function registerUser(payload: RegisterPayload): Promise<void> {
     try {
         await axios.post('http://localhost:8080/api/v1/users/register', payload);
     } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
+        if (error.response?.data?.message) {
             throw new Error(error.response.data.message);
         } else {
-            throw new Error('Error desconocido al registrar el usuario');
+            console.error(error);
+            throw new Error('No se pudo conectar con el servidor. Inténtalo más tarde.');
         }
     }
 }
