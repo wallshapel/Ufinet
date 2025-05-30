@@ -7,7 +7,8 @@ import PrivateRoute from './PrivateRoute';
 import { useAuth } from '../context/AuthContext';
 
 function RootRedirect() {
-    const { token } = useAuth();
+    const { token, isLoading } = useAuth();
+    if (isLoading) return null;
     return <Navigate to={token ? '/books' : '/login'} replace />;
 }
 
