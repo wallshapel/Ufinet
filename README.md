@@ -15,3 +15,12 @@
 
     Ejecute las sentencias del archivo sql
 
+### 4 Poner en marcha el frontend
+
+    Con el proyecto backend una vez cargadas todas las dependencias del pom.xml y puesto en marcha en el puerto 8080 entonces poner en marcha el frontend con
+
+    ```
+        npm run dev
+    ```
+
+
