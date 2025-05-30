@@ -21,3 +21,6 @@ spring:
     init:
       mode: always
       continue-on-error: true
+
+jwt:
+  secret: 4E6F795265616C6C79536563726574506C656173654368616E6765546869734B6579
