@@ -1,13 +1,11 @@
-
 ## 📘 Instrucciones para ejecutar la aplicación
 
 ### 1️⃣ Clonar el repositorio
 
 Clona el repositorio con el siguiente comando:
 
-```bash
+```
 git clone https://github.com/wallshapel/Prueba-Ufinet
-
 ```
 
 ----------
@@ -16,10 +14,9 @@ git clone https://github.com/wallshapel/Prueba-Ufinet
 
 Accede al directorio del frontend e instala las dependencias:
 
-```bash
+```
 cd my-book-app
 npm install
-
 ```
 
 ----------
@@ -28,7 +25,7 @@ npm install
 
 1.  Asegúrate de configurar correctamente las credenciales en el archivo `application.yml`.
     
-2.  Crea manualmente una base de datos llamada **`bookapp`**.
+2.  Crea manualmente una base de datos llamada `**bookapp**`.
     
     -   Esta debe pertenecer al usuario `sa` o al que hayas especificado en el archivo de configuración.
         
@@ -39,11 +36,10 @@ npm install
 
 ### 4️⃣ Iniciar el frontend
 
-Una vez que el backend esté corriendo en el puerto **`8080`** (con todas las dependencias del `pom.xml` instaladas), ejecuta el siguiente comando para iniciar el frontend:
+Una vez que el backend esté corriendo en el puerto `**8080**` (con todas las dependencias del `pom.xml` instaladas), ejecuta el siguiente comando para iniciar el frontend:
 
-```bash
+```
 npm run dev
-
 ```
 
 ----------
@@ -56,7 +52,7 @@ Esto significa que:
 
 -   Si un usuario inicia sesión, su token se mantiene activo durante ese tiempo.
     
--   Si otro usuario intenta usar la app desde el mismo navegador antes de que ese token expire, verá la información del usuario anterior, ninguna o reciba errores.
+-   Si otro usuario intenta usar la app desde el mismo navegador antes de que ese token expire, verá la información del usuario anterior.
     
 
 ✅ **Solución temporal**: limpiar el `localStorage` manualmente:
@@ -70,4 +66,10 @@ Esto significa que:
 4.  Haz clic derecho sobre el valor almacenado y selecciona `Delete`.
     
 
-Esto eliminará el token y permitirá que otro usuario inicie sesión correctamente.
+----------
+
+### 🔹 Uso de la colección de Postman
+
+En la raíz del proyecto se incluye una colección de **Postman** que facilita el uso de la API.
+
+Una vez consumido el endpoint de login, el token JWT generado se asigna automáticamente a los demás endpoints de la colección, permitiendo hacer pruebas de manera fluida sin necesidad de copiarlo manualmente.
