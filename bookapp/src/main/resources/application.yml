@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=bookapp;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: Legato1218*
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
