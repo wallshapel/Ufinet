@@ -1,3 +1,4 @@
+
 ## 📘 Instrucciones para ejecutar la aplicación
 
 ### 1️⃣ Clonar el repositorio
@@ -31,7 +32,7 @@ npm install
     
     -   Esta debe pertenecer al usuario `sa` o al que hayas especificado en el archivo de configuración.
         
-3.  Ejecuta las sentencias SQL que se encuentran en el archivo sql ubicado en la raíz para poblar la base de datos.
+3.  Ejecuta las sentencias SQL que se encuentran en el archivo correspondiente para poblar la base de datos.
     
 
 ----------
@@ -44,3 +45,29 @@ Una vez que el backend esté corriendo en el puerto **`8080`** (con todas las de
 npm run dev
 
 ```
+
+----------
+
+### ⚠️ Advertencia sobre usabilidad
+
+Dado que esta aplicación utiliza JWT y no maneja sesiones con estado, el token generado tras el inicio de sesión se almacena en `localStorage` y tiene una duración de **3 minutos**.
+
+Esto significa que:
+
+-   Si un usuario inicia sesión, su token se mantiene activo durante ese tiempo.
+    
+-   Si otro usuario intenta usar la app desde el mismo navegador antes de que ese token expire, verá la información del usuario anterior, ninguna o reciba errores.
+    
+
+✅ **Solución temporal**: limpiar el `localStorage` manualmente:
+
+1.  Presiona `F12` para abrir las herramientas del desarrollador.
+    
+2.  Ve a la pestaña `Application`.
+    
+3.  En la sección `Storage`, haz clic en `Local Storage` y selecciona `http://localhost:5173`.
+    
+4.  Haz clic derecho sobre el valor almacenado y selecciona `Delete`.
+    
+
+Esto eliminará el token y permitirá que otro usuario inicie sesión correctamente.
