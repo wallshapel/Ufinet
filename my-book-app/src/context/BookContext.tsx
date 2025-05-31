@@ -19,15 +19,26 @@ export function BookProvider({ children }: { children: React.ReactNode; userId: 
     const [size, setSize] = useState(5);
     const [totalPages, setTotalPages] = useState(0);
     const [selectedGenre, setSelectedGenre] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const fetchBooks = async () => {
+        setLoading(true);
         const token = localStorage.getItem('token');
         const userId = token ? getUserIdFromToken(token) : null;
-        if (userId === null) return;
+        if (userId === null) {
+            setLoading(false);
+            return;
+        }
 
-        const data = await fetchPaginatedBooks(userId, page, size);
-        setBooks(data.content);
-        setTotalPages(data.totalPages);
+        try {
+            const data = await fetchPaginatedBooks(userId, page, size);
+            setBooks(data.content);
+            setTotalPages(data.totalPages);
+        } catch (error) {
+            console.error('Error al obtener los libros:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -73,6 +84,7 @@ export function BookProvider({ children }: { children: React.ReactNode; userId: 
                 refreshBooks: fetchBooks,
                 onDelete,
                 onEdit,
+                loading,
             }}
         >
             {children}

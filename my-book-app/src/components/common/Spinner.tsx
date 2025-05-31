@@ -1,10 +1,12 @@
+import spinner from '../../assets/spinner.svg';
+
 export default function Spinner() {
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-white/60 z-50">
+        <div className="fixed inset-0 flex items-center justify-center z-50">
             <img
-                src="/src/assets/spinner.svg"
+                src={spinner}
                 alt="Cargando..."
-                className="w-12 h-12"
+                className="w-12 h-12 animate-spin"
             />
         </div>
     );

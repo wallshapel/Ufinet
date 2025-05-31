@@ -4,6 +4,7 @@ import { getUserIdFromToken } from '../../utils/decodeToken';
 import type { Book } from '../../types/books/Book';
 import type { Errors } from '../../types/books/BookErrors';
 import type { Props } from '../../types/books/BookFormProps';
+import Spinner from '../common/Spinner';
 
 export default function BookForm({ onAdd }: Props) {
     const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ export default function BookForm({ onAdd }: Props) {
 
     const [errors, setErrors] = useState<Errors>({});
     const [success, setSuccess] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -55,6 +57,7 @@ export default function BookForm({ onAdd }: Props) {
         };
 
         try {
+            setLoading(true);
             const newBook = await createBook(bookToSend);
             onAdd(newBook);
 
@@ -76,7 +79,12 @@ export default function BookForm({ onAdd }: Props) {
                 console.error('Error al crear libro:', error);
             }
         }
+        finally {
+            setLoading(false);
+        }
     };
+
+    if (loading) return <Spinner />;
 
     return (
         <form onSubmit={handleSubmit} className="mb-6 grid gap-4 max-w-2xl">

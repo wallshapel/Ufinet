@@ -48,7 +48,7 @@ export default function DeleteByIsbn({ books, onDelete }: Props) {
 
     return (
         <div className="mt-8 max-w-md">
-            <h3 className="text-lg font-semibold mb-2">Eliminar libro por ISBN</h3>
+            <h3 className="text-lg font-semibold mb-2">Buscar libro por ISBN</h3>
 
             <div className="flex items-center gap-2 mb-4">
                 <input

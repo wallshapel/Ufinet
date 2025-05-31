@@ -3,9 +3,12 @@ import type { Book } from '../../types/books/Book';
 // BookContext is only used between Books.tsx and (BookTable.tsx, GenreFilter).
 // Other components use props explicitly.
 import { useBookContext } from '../../context/BookContext';
+import Spinner from '../common/Spinner';
 
 export default function BookTable() {
-    const { filteredBooks, onDelete, onEdit } = useBookContext();
+    const { filteredBooks, onDelete, onEdit, loading } = useBookContext();
+
+    if (loading) return <Spinner />;
 
     const [editingIsbn, setEditingIsbn] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<Partial<Book>>({});

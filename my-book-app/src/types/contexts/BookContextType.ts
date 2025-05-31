@@ -13,4 +13,5 @@ export type BookContextType = {
     refreshBooks: () => void;
     onDelete: (isbn: string) => void;
     onEdit: (book: Book) => void;
+    loading: boolean;
 };
