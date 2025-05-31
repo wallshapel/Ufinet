@@ -1,75 +1,114 @@
-## 📘 Instrucciones para ejecutar la aplicación
+## 🚀 Guía de ejecución de la aplicación
 
 ### 1️⃣ Clonar el repositorio
 
-Clona el repositorio con el siguiente comando:
-
-```
+```bash
 git clone https://github.com/wallshapel/Prueba-Ufinet
+
 ```
 
 ----------
 
-### 2️⃣ Instalar dependencias del frontend
+### 🐳 Opción rápida: Entorno Dockerizado
 
-Accede al directorio del frontend e instala las dependencias:
+Puedes ejecutar todo el sistema con un solo comando gracias a Docker Compose. Esta opción es ideal si no deseas instalar dependencias manualmente.
+
+```bash
+docker compose up -d
 
 ```
+
+🔎 **Consideraciones importantes**:
+
+-   **Base de datos (SQL Server)** se expone por el puerto `1434`. Si usas herramientas como DBeaver, conéctate usando ese puerto (no el 1433).
+    
+-   **Backend** se ejecuta en el puerto `8080`.
+    
+-   **Frontend** corre en el puerto `5173`.
+    
+
+Asegúrate de que esos puertos estén **libres** antes de ejecutar el comando.
+
+📁 Para que la base de datos tenga persistencia, crea el siguiente directorio con los permisos adecuados:
+
+```bash
+sudo mkdir -p /home/legato/sql-server-dockerized
+sudo chown -R 10001:0 /home/legato/sql-server-dockerized
+sudo chmod -R 770 /home/legato/sql-server-dockerized
+
+```
+
+💡 **Nota para usuarios de Windows**: esta ruta (`/home/legato/...`) aplica a sistemas Linux. Si usas Docker en Windows, deberás ajustar la ruta según tu sistema (no se provee soporte específico para Windows).
+
+🔗 Luego de ejecutar `docker compose up -d`, puedes verificar que todo esté corriendo correctamente con:
+
+```bash
+docker ps -a
+
+```
+
+Abre tu navegador y accede a:
+
+[http://localhost:5173](http://localhost:5173/)
+
+----------
+
+## 🧰 Ejecución manual (modo desarrollador)
+
+### 2️⃣ Instalar dependencias del frontend
+
+```bash
 cd my-book-app
 npm install
+
 ```
 
 ----------
 
 ### 3️⃣ Configurar la base de datos
 
-1.  Asegúrate de configurar correctamente las credenciales en el archivo `application.yml`.
+1.  Configura las credenciales en `application.yml`.
     
-2.  Crea manualmente una base de datos llamada `**bookapp**`.
+2.  Crea la base de datos llamada **`bookapp`**, propiedad del usuario `sa` u otro definido.
     
-    -   Esta debe pertenecer al usuario `sa` o al que hayas especificado en el archivo de configuración.
-        
-3.  Ejecuta las sentencias SQL que se encuentran en el archivo correspondiente para poblar la base de datos.
+3.  Ejecuta el script SQL incluido para poblar la base.
     
 
 ----------
 
 ### 4️⃣ Iniciar el frontend
 
-Una vez que el backend esté corriendo en el puerto `**8080**` (con todas las dependencias del `pom.xml` instaladas), ejecuta el siguiente comando para iniciar el frontend:
+Una vez el backend esté corriendo en el puerto `8080`:
+
+```bash
+npm run dev
 
 ```
-npm run dev
-```
+
+Abre [http://localhost:5173](http://localhost:5173/).
 
 ----------
 
 ### ⚠️ Advertencia sobre usabilidad
 
-Dado que esta aplicación utiliza JWT y no maneja sesiones con estado, el token generado tras el inicio de sesión se almacena en `localStorage` y tiene una duración de **3 minutos**. Una vez pasa este tiempo si el usuario actualiza o intenta hacer algo, es redirigdo automáticamente al login
+Esta app utiliza JWT y no maneja sesiones con estado. El token de autenticación se guarda en `localStorage` y **dura 3 minutos**.
 
-Esto significa que:
-
--   Si un usuario inicia sesión, su token se mantiene activo durante ese tiempo.
-    
--   Si otro usuario intenta usar la app desde el mismo navegador antes de que ese token expire, verá la información del usuario anterior/nada/error.
+-   Si otro usuario intenta usar la app en el mismo navegador antes de que expire ese token, puede ver datos incorrectos o errores.
     
 
-✅ **Solución temporal**: limpiar el `localStorage` manualmente:
+✅ **Recomendación**: siempre que termines una sesión, se recomienda **cerrar sesión antes de cerrar el navegador** para evitar conflictos con tokens activos.
 
-1.  Presiona `F12` para abrir las herramientas del desarrollador.
+----------
+
+### 📬 Colección de Postman incluida
+
+La raíz del proyecto contiene una colección de **Postman** para facilitar pruebas.
+
+-   Al autenticarte con el endpoint de login, el token JWT se aplica automáticamente al resto de endpoints.
     
-2.  Ve a la pestaña `Application`.
-    
-3.  En la sección `Storage`, haz clic en `Local Storage` y selecciona `http://localhost:5173`.
-    
-4.  Haz clic derecho sobre el valor almacenado y selecciona `Delete`.
+-   No es necesario copiarlo manualmente, lo que agiliza el proceso de pruebas.
     
 
 ----------
 
-### 🔹 Uso de la colección de Postman
-
-En la raíz del proyecto se incluye una colección de **Postman** que facilita el uso de la API.
-
-Una vez consumido el endpoint de login, el token JWT generado se asigna automáticamente a los demás endpoints de la colección, permitiendo hacer pruebas de manera fluida sin necesidad de copiarlo manualmente.
+✅ ¡Listo! Ahora puedes trabajar o probar la aplicación según prefieras: con Docker o manualmente como desarrollador.
