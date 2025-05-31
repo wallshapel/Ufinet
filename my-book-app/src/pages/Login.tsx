@@ -62,6 +62,7 @@ export default function Login() {
         }
     };
 
+    if (loading) return <Spinner />;
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-blue-50 text-blue-900">
@@ -94,7 +95,11 @@ export default function Login() {
 
                 <button
                     type="submit"
-                    className="w-full mt-6 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded"
+                    disabled={loading}
+                    className={`w-full mt-6 font-semibold py-2 rounded ${loading
+                        ? 'bg-blue-300 cursor-not-allowed text-white'
+                        : 'bg-blue-700 hover:bg-blue-800 text-white'
+                        }`}
                 >
                     Entrar
                 </button>

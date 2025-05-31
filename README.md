@@ -46,13 +46,13 @@ npm run dev
 
 ### ⚠️ Advertencia sobre usabilidad
 
-Dado que esta aplicación utiliza JWT y no maneja sesiones con estado, el token generado tras el inicio de sesión se almacena en `localStorage` y tiene una duración de **3 minutos**.
+Dado que esta aplicación utiliza JWT y no maneja sesiones con estado, el token generado tras el inicio de sesión se almacena en `localStorage` y tiene una duración de **3 minutos**. Una vez pasa este tiempo si el usuario actualiza o intenta hacer algo, es redirigdo automáticamente al login
 
 Esto significa que:
 
 -   Si un usuario inicia sesión, su token se mantiene activo durante ese tiempo.
     
--   Si otro usuario intenta usar la app desde el mismo navegador antes de que ese token expire, verá la información del usuario anterior.
+-   Si otro usuario intenta usar la app desde el mismo navegador antes de que ese token expire, verá la información del usuario anterior/nada/error.
     
 
 ✅ **Solución temporal**: limpiar el `localStorage` manualmente:
