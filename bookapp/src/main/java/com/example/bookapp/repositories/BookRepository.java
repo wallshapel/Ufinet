@@ -12,10 +12,8 @@ import java.util.Optional;
 @Repository
 public interface BookRepository extends JpaRepository<Book, String> {
 
-    List<Book> findByUserId(Long userId);
-    List<Book> findByGenreIgnoreCaseAndUserId(String genre, Long userId);
     Optional<Book> findByIsbnAndUserId(String isbn, Long userId);
-    boolean existsByIsbnAndUserId(String isbn, Long userId);
+    boolean existsByIsbn(String isbn);
     Page<Book> findByUserId(Long userId, Pageable pageable);
     Page<Book> findByGenreIgnoreCaseAndUserId(String genre, Long userId, Pageable pageable);
 }

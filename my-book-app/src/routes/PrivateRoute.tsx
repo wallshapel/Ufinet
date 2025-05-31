@@ -1,10 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import type { ReactElement } from 'react';
-
-type Props = {
-    children: ReactElement;
-};
+import type { Props } from '../types/PrivateRouteProps';
 
 export default function PrivateRoute({ children }: Props) {
     const { token } = useAuth();

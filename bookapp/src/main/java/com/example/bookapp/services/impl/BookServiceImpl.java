@@ -25,10 +25,10 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponseDTO register(BookRegisterDTO dto) {
         User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        if (bookRepository.existsByIsbnAndUserId(dto.getIsbn(), user.getId())) {
-            throw new AlreadyExistException("isbn already exists for this user");
+        if (bookRepository.existsByIsbn(dto.getIsbn())) {
+            throw new AlreadyExistException("El ISBN ya existe");
         }
 
         Book book = mapper.toEntity(dto, Book.class);
@@ -40,7 +40,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponseDTO update(BookRegisterDTO dto) {
         Book book = bookRepository.findByIsbnAndUserId(dto.getIsbn(), dto.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("book not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado"));
 
         book.setTitle(dto.getTitle());
         book.setGenre(dto.getGenre());
@@ -54,11 +54,11 @@ public class BookServiceImpl implements BookService {
     @Override
     public void deleteByIsbn(String isbn, Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("user not found");
+            throw new ResourceNotFoundException("Usuario no encontrado");
         }
 
         Book book = bookRepository.findByIsbnAndUserId(isbn, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("book not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado"));
 
         bookRepository.delete(book);
     }
@@ -66,7 +66,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public Page<BookResponseDTO> findPaginated(Long userId, int page, int size) {
         if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("user not found");
+            throw new ResourceNotFoundException("Usuario no encontrado");
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("title").ascending());
@@ -77,14 +77,14 @@ public class BookServiceImpl implements BookService {
     @Override
     public Page<BookResponseDTO> findByGenreAndUserId(String genre, Long userId, int page, int size) {
         if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("user not found");
+            throw new ResourceNotFoundException("Usuario no encontrado");
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("title").ascending());
         Page<Book> booksPage = bookRepository.findByGenreIgnoreCaseAndUserId(genre, userId, pageable);
 
         if (booksPage.isEmpty()) {
-            throw new ResourceNotFoundException("no books found for genre: " + genre);
+            throw new ResourceNotFoundException("No hay libros para el género: " + genre);
         }
 
         return booksPage.map(book -> mapper.toDto(book, BookResponseDTO.class));
@@ -93,11 +93,11 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponseDTO findByIsbnAndUserId(String isbn, Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("user not found");
+            throw new ResourceNotFoundException("Usuario no encontrado");
         }
 
         Book book = bookRepository.findByIsbnAndUserId(isbn, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("book not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado"));
 
         return mapper.toDto(book, BookResponseDTO.class);
     }

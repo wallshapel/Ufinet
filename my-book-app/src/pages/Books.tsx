@@ -11,12 +11,10 @@ import { BookProvider, useBookContext } from '../context/BookContext';
 import { getUserIdFromToken } from '../utils/decodeToken';
 
 function BooksInner() {
-    const { books, onDelete, onEdit, page, size, totalPages, setPage, setSize, refreshBooks } = useBookContext();
-    const [genre, setGenre] = useState('');
+    const { books, onDelete, page, size, totalPages, setPage, setSize, refreshBooks } = useBookContext();
+    const [genre] = useState('');
 
     const filteredBooks = genre ? books.filter((b) => b.genre === genre) : books;
-
-    const genres = Array.from(new Set(books.map((b) => b.genre))).sort();
 
     return (
         <Layout>

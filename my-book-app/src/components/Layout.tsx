@@ -1,9 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-
-type Props = {
-    children: React.ReactNode;
-};
+import type { Props } from '../types/LayoutProps';
 
 export default function Layout({ children }: Props) {
     const { token, logout } = useAuth();

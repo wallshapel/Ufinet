@@ -1,14 +1,7 @@
 import axios from 'axios';
-import type { Book } from '../types/Book';
+import type { Book } from '../types/books/Book';
 import { getUserIdFromToken } from '../utils/decodeToken';
-
-type PaginatedResponse = {
-    content: Book[];
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    number: number;
-};
+import type { PaginatedResponse } from '../types/paginations/PaginatedResponse';
 
 export async function fetchPaginatedBooks(userId: number, page: number, size: number): Promise<PaginatedResponse> {
     const token = localStorage.getItem('token');

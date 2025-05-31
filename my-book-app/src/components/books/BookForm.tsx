@@ -1,19 +1,9 @@
 import { useState } from 'react';
 import { createBook } from '../../api/bookApi';
 import { getUserIdFromToken } from '../../utils/decodeToken';
-import type { Book } from '../../types/Book';
-
-type Errors = {
-    isbn?: string;
-    title?: string;
-    genre?: string;
-    publishedDate?: string;
-    synopsis?: string;
-};
-
-type Props = {
-    onAdd: (book: Book) => void;
-};
+import type { Book } from '../../types/books/Book';
+import type { Errors } from '../../types/books/BookErrors';
+import type { Props } from '../../types/books/BookFormProps';
 
 export default function BookForm({ onAdd }: Props) {
     const [formData, setFormData] = useState({
@@ -81,7 +71,7 @@ export default function BookForm({ onAdd }: Props) {
             setTimeout(() => setSuccess(false), 3000);
         } catch (error: any) {
             if (error.response?.data && typeof error.response.data === 'object') {
-                setErrors(error.response.data); // ← esto asumirá que las claves coinciden con el estado `errors`
+                setErrors(error.response.data);
             } else {
                 console.error('Error al crear libro:', error);
             }

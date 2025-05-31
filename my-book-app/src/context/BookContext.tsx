@@ -1,23 +1,9 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import type { Book } from '../types/Book';
+import type { Book } from '../types/books/Book';
 import { fetchPaginatedBooks } from '../api/bookApi';
 import { deleteBookByIsbn, updateBook } from '../api/bookApi';
 import { getUserIdFromToken } from '../utils/decodeToken';
-
-type BookContextType = {
-    books: Book[];
-    filteredBooks: Book[];
-    page: number;
-    size: number;
-    totalPages: number;
-    selectedGenre: string;
-    setSelectedGenre: (genre: string) => void;
-    setPage: (page: number) => void;
-    setSize: (size: number) => void;
-    refreshBooks: () => void;
-    onDelete: (isbn: string) => void;
-    onEdit: (book: Book) => void;
-};
+import type { BookContextType } from '../types/contexts/BookContextType';
 
 export const BookContext = createContext<BookContextType | null>(null);
 
@@ -27,7 +13,7 @@ export const useBookContext = () => {
     return context;
 };
 
-export function BookProvider({ children, userId }: { children: React.ReactNode; userId: number }) {
+export function BookProvider({ children }: { children: React.ReactNode; userId: number }) {
     const [books, setBooks] = useState<Book[]>([]);
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(5);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { Book } from '../../types/Book';
-// BookContext is only used between Books.tsx and BookTable.tsx.
+import type { Book } from '../../types/books/Book';
+// BookContext is only used between Books.tsx and (BookTable.tsx, GenreFilter).
 // Other components use props explicitly.
 import { useBookContext } from '../../context/BookContext';
 

@@ -9,23 +9,23 @@ import lombok.Setter;
 @Setter
 public class BookRegisterDTO {
 
-    @NotBlank(message = "isbn cannot be null or empty")
-    @Size(min = 10, max = 13, message = "isbn must be between 10 and 13 characters")
+    @NotBlank(message = "El ISBN no puede estar vacío ni ser nulo")
+    @Size(min = 10, max = 13, message = "El ISBN debe tener entre 10 y 13 caracteres")
     private String isbn;
 
-    @NotBlank(message = "title cannot be null or empty")
-    @Size(min = 2, max = 100, message = "title must be between 2 and 100 characters")
+    @NotBlank(message = "El título no puede estar vacío ni ser nulo")
+    @Size(min = 2, max = 100, message = "El título debe tener entre 2 y 100 caracteres")
     private String title;
 
-    @NotBlank(message = "genre cannot be null or empty")
-    @Size(min = 3, max = 30, message = "genre must be between 3 and 30 characters")
+    @NotBlank(message = "El género no puede estar vacío ni ser nulo")
+    @Size(min = 3, max = 30, message = "El género debe tener entre 3 y 30 caracteres")
     private String genre;
 
-    @NotBlank(message = "publishedDate cannot be null or empty")
+    @NotBlank(message = "El año de publicación no puede estar vacío ni ser nulo")
     private String publishedDate;
 
-    @NotBlank(message = "synopsis cannot be null or empty")
-    @Size(min = 10, max = 500, message = "synopsis must be between 10 and 500 characters")
+    @NotBlank(message = "la sinopsis no puede estar vacío ni ser nulo")
+    @Size(min = 10, max = 500, message = "La sinopsis debe tener entre 10 y 500 caracteres")
     private String synopsis;
 
     private Long userId;

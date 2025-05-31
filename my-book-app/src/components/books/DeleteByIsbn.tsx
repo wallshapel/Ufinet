@@ -1,11 +1,7 @@
 import { useState } from 'react';
-import type { Book } from '../../types/Book';
+import type { Book } from '../../types/books/Book';
 import Spinner from '../common/Spinner';
-
-type Props = {
-    books: Book[];
-    onDelete: (isbn: string) => void;
-};
+import type { Props } from '../../types/DeleteByIsbnProps';
 
 export default function DeleteByIsbn({ books, onDelete }: Props) {
     const [isbnInput, setIsbnInput] = useState('');

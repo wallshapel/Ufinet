@@ -1,10 +1,4 @@
-type Props = {
-    page: number;
-    totalPages: number;
-    onPageChange: (newPage: number) => void;
-    size: number;
-    onSizeChange: (newSize: number) => void;
-};
+import type { Props } from "../../types/paginations/PaginationProps";
 
 export default function Pagination({ page, totalPages, onPageChange, size, onSizeChange }: Props) {
     return (

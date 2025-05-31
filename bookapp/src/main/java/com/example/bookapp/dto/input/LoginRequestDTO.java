@@ -9,10 +9,10 @@ import lombok.Setter;
 @Setter
 public class LoginRequestDTO {
 
-    @NotBlank(message = "email cannot be null or empty")
-    @Email(message = "email must be valid")
+    @NotBlank(message = "El email no puede estar vacío ni ser nulo")
+    @Email(message = "El email debe ser válido")
     private String email;
 
-    @NotBlank(message = "password cannot be null or empty")
+    @NotBlank(message = "La contraseña no puede estar vacío ni ser nula")
     private String password;
 }

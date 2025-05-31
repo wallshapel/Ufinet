@@ -42,14 +42,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Token is required\"}");
+            response.getWriter().write("{\"error\": \"El token es requerido\"}");
             return;
         }
 
         if (!authHeader.startsWith("Bearer ")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Invalid or malformed token\"}");
+            response.getWriter().write("{\"error\": \"Token inválido o mal formado\"}");
             return;
         }
 
@@ -60,22 +60,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (io.jsonwebtoken.ExpiredJwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Token has expired\"}");
+            response.getWriter().write("{\"error\": \"token expirado\"}");
             return;
         } catch (io.jsonwebtoken.MalformedJwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Malformed token\"}");
+            response.getWriter().write("{\"error\": \"token mal formado\"}");
             return;
         } catch (io.jsonwebtoken.SignatureException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Invalid token signature\"}");
+            response.getWriter().write("{\"error\": \"La firma del token es inválida\"}");
             return;
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Invalid or unknown JWT error\"}");
+            response.getWriter().write("{\"error\": \"Token inválido o error desconocido\"}");
             return;
         }
 
