@@ -22,7 +22,7 @@ function BooksInner() {
         <Layout>
             <h2 className="text-2xl font-bold mb-4">Mis libros</h2>
             <BookForm onAdd={refreshBooks} />
-            <GenreFilter selected={genre} genres={genres} onChange={setGenre} />
+            <GenreFilter />
             <BookTable />
             <DeleteByIsbn books={filteredBooks} onDelete={onDelete} />
             <Pagination

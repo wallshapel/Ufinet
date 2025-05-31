@@ -1,14 +1,11 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import type { Book } from '../../types/Book';
 // BookContext is only used between Books.tsx and BookTable.tsx.
 // Other components use props explicitly.
-import { BookContext } from '../../context/BookContext';
+import { useBookContext } from '../../context/BookContext';
 
 export default function BookTable() {
-    const context = useContext(BookContext);
-    if (!context) throw new Error('BookContext must be used within a BookContext.Provider');
-
-    const { books, onDelete, onEdit } = context;
+    const { filteredBooks, onDelete, onEdit } = useBookContext();
 
     const [editingIsbn, setEditingIsbn] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<Partial<Book>>({});
@@ -69,7 +66,7 @@ export default function BookTable() {
                     </tr>
                 </thead>
                 <tbody>
-                    {books.map((book: Book) => (
+                    {filteredBooks.map((book: Book) => (
                         <tr key={book.isbn} className="hover:bg-blue-50">
                             <td className="px-4 py-2 border">{book.isbn}</td>
 

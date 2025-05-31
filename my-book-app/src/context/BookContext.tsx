@@ -6,9 +6,12 @@ import { getUserIdFromToken } from '../utils/decodeToken';
 
 type BookContextType = {
     books: Book[];
+    filteredBooks: Book[];
     page: number;
     size: number;
     totalPages: number;
+    selectedGenre: string;
+    setSelectedGenre: (genre: string) => void;
     setPage: (page: number) => void;
     setSize: (size: number) => void;
     refreshBooks: () => void;
@@ -29,6 +32,7 @@ export function BookProvider({ children, userId }: { children: React.ReactNode; 
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(5);
     const [totalPages, setTotalPages] = useState(0);
+    const [selectedGenre, setSelectedGenre] = useState('');
 
     const fetchBooks = async () => {
         const token = localStorage.getItem('token');
@@ -43,6 +47,10 @@ export function BookProvider({ children, userId }: { children: React.ReactNode; 
     useEffect(() => {
         fetchBooks();
     }, [page, size]);
+
+    const filteredBooks = selectedGenre
+        ? books.filter((b) => b.genre === selectedGenre)
+        : books;
 
     const onDelete = async (isbn: string) => {
         try {
@@ -64,14 +72,16 @@ export function BookProvider({ children, userId }: { children: React.ReactNode; 
         }
     };
 
-
     return (
         <BookContext.Provider
             value={{
                 books,
+                filteredBooks,
                 page,
                 size,
                 totalPages,
+                selectedGenre,
+                setSelectedGenre,
                 setPage,
                 setSize,
                 refreshBooks: fetchBooks,

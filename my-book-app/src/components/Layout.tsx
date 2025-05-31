@@ -31,7 +31,7 @@ export default function Layout({ children }: Props) {
     return (
         <div className="min-h-screen bg-white text-gray-900">
             <header className="bg-blue-700 text-white p-4 shadow flex justify-between items-center">
-                <h1 className="text-xl font-bold">My Book App</h1>
+                <h1 className="text-xl lg:text-4xl font-bold">My Book App</h1>
                 <div className="flex items-center gap-4">
                     {email && <span className="text-sm">Bienvenido, {email}</span>}
                     <button
