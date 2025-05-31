@@ -41,3 +41,30 @@ export async function createBook(book: Omit<Book, 'createdAt'>): Promise<Book> {
 
     return response.data;
 }
+
+export async function deleteBookByIsbn(isbn: string): Promise<void> {
+    const token = localStorage.getItem('token');
+    const userId = token ? getUserIdFromToken(token) : null;
+    if (!token || userId === null) throw new Error('Token inválido');
+
+    await axios.delete(`http://localhost:8080/api/v1/books/${isbn}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        params: { userId },
+    });
+}
+
+export async function updateBook(updatedBook: Book): Promise<void> {
+    const token = localStorage.getItem('token');
+    const userId = token ? getUserIdFromToken(token) : null;
+    if (!token || userId === null) throw new Error('Token inválido');
+
+    const bookWithUser = { ...updatedBook, userId };
+
+    await axios.put('http://localhost:8080/api/v1/books', bookWithUser, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+}

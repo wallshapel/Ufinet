@@ -1,5 +1,7 @@
 import { useState, useContext } from 'react';
 import type { Book } from '../../types/Book';
+// BookContext is only used between Books.tsx and BookTable.tsx.
+// Other components use props explicitly.
 import { BookContext } from '../../context/BookContext';
 
 export default function BookTable() {
@@ -32,6 +34,11 @@ export default function BookTable() {
     };
 
     const confirmEdit = () => {
+        if (!editForm.isbn || !editForm.title || !editForm.genre || !editForm.publishedDate || !editForm.synopsis) {
+            showTemporaryMessage('Faltan campos obligatorios para editar.');
+            return;
+        }
+
         onEdit(editForm as Book);
         setEditingIsbn(null);
         showTemporaryMessage('Libro editado correctamente.');

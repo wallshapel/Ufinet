@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { Book } from '../types/Book';
 import { fetchPaginatedBooks } from '../api/bookApi';
+import { deleteBookByIsbn, updateBook } from '../api/bookApi';
 import { getUserIdFromToken } from '../utils/decodeToken';
 
 type BookContextType = {
@@ -23,7 +24,7 @@ export const useBookContext = () => {
     return context;
 };
 
-export function BookProvider({ children }: { children: React.ReactNode }) {
+export function BookProvider({ children, userId }: { children: React.ReactNode; userId: number }) {
     const [books, setBooks] = useState<Book[]>([]);
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(5);
@@ -43,15 +44,26 @@ export function BookProvider({ children }: { children: React.ReactNode }) {
         fetchBooks();
     }, [page, size]);
 
-    const onDelete = (isbn: string) => {
-        setBooks((prev) => prev.filter((book) => book.isbn !== isbn));
+    const onDelete = async (isbn: string) => {
+        try {
+            await deleteBookByIsbn(isbn);
+            setBooks((prev) => prev.filter((book) => book.isbn !== isbn));
+        } catch (error) {
+            console.error('Error al eliminar el libro:', error);
+        }
     };
 
-    const onEdit = (updated: Book) => {
-        setBooks((prev) =>
-            prev.map((book) => (book.isbn === updated.isbn ? updated : book))
-        );
+    const onEdit = async (updated: Book) => {
+        try {
+            await updateBook(updated);
+            setBooks((prev) =>
+                prev.map((book) => (book.isbn === updated.isbn ? updated : book))
+            );
+        } catch (error) {
+            console.error('Error al editar el libro:', error);
+        }
     };
+
 
     return (
         <BookContext.Provider
