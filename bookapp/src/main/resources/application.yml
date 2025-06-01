@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:sqlserver://localhost:1433;databaseName=bookapp;encrypt=true;trustServerCertificate=true}
-    username: ${SPRING_DATASOURCE_USERNAME:sa}
-    password: ${SPRING_DATASOURCE_PASSWORD:Legato1218*}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
   jpa:
@@ -23,4 +23,4 @@ spring:
       continue-on-error: true
 
 jwt:
-  secret: ${JWT_SECRET:4E6F795265616C6C79536563726574506C656173654368616E6765546869734B6579}
+  secret: ${JWT_SECRET}
