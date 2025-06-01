@@ -4,23 +4,24 @@ services:
     container_name: prueba-ufinet-db
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: "Legato1218*"
+      SA_PASSWORD: "Prueba-Ufinet-123*"
     ports:
-      - "1434:1433"
+      - "1433:1433"
     volumes:
-      - /home/legato/sql-server-dockerized:/var/opt/mssql
+      - prueba-ufinet-sql-server:/var/opt/mssql
     networks:
       - app-network
 
   prueba-ufinet-backend:
-    image: spring-backend
+    image: prueba-ufinet-backend
     container_name: prueba-ufinet-backend
     depends_on:
       - prueba-ufinet-db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:sqlserver://prueba-ufinet-db:1433;databaseName=bookapp;encrypt=true;trustServerCertificate=true
       - SPRING_DATASOURCE_USERNAME=sa
-      - SPRING_DATASOURCE_PASSWORD=Legato1218*
+      - SPRING_DATASOURCE_PASSWORD=Prueba-Ufinet-123*
+      - JWT_SECRET=4E6F795265616C6C79536563726574506C656173654368616E6765546869734B6579
     ports:
       - "8080:8080"
     networks:
@@ -28,7 +29,7 @@ services:
 
 
   prueba-ufinet-frontend:
-    image: react-frontend
+    image: prueba-ufinet-frontend
     container_name: prueba-ufinet-frontend
     depends_on:
       - prueba-ufinet-backend
@@ -40,3 +41,6 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  prueba-ufinet-sql-server:
