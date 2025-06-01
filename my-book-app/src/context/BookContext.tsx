@@ -1,7 +1,11 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { Book } from '../types/books/Book';
-import { fetchPaginatedBooks } from '../api/bookApi';
-import { deleteBookByIsbn, updateBook } from '../api/bookApi';
+import {
+    fetchPaginatedBooks,
+    deleteBookByIsbn,
+    updateBook,
+    fetchBooksByGenre,
+} from '../api/bookApi';
 import { getUserIdFromToken } from '../utils/decodeToken';
 import type { BookContextType } from '../types/contexts/BookContextType';
 
@@ -31,7 +35,10 @@ export function BookProvider({ children }: { children: React.ReactNode; userId: 
         }
 
         try {
-            const data = await fetchPaginatedBooks(userId, page, size);
+            const data = selectedGenre
+                ? await fetchBooksByGenre(userId, selectedGenre, page, size)
+                : await fetchPaginatedBooks(userId, page, size);
+
             setBooks(data.content);
             setTotalPages(data.totalPages);
         } catch (error) {
@@ -43,11 +50,7 @@ export function BookProvider({ children }: { children: React.ReactNode; userId: 
 
     useEffect(() => {
         fetchBooks();
-    }, [page, size]);
-
-    const filteredBooks = selectedGenre
-        ? books.filter((b) => b.genre === selectedGenre)
-        : books;
+    }, [page, size, selectedGenre]);
 
     const onDelete = async (isbn: string) => {
         try {
@@ -73,7 +76,6 @@ export function BookProvider({ children }: { children: React.ReactNode; userId: 
         <BookContext.Provider
             value={{
                 books,
-                filteredBooks,
                 page,
                 size,
                 totalPages,

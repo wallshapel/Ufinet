@@ -2,7 +2,6 @@ import type { Book } from "../books/Book";
 
 export type BookContextType = {
     books: Book[];
-    filteredBooks: Book[];
     page: number;
     size: number;
     totalPages: number;

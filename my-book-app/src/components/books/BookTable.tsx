@@ -6,7 +6,7 @@ import { useBookContext } from '../../context/BookContext';
 import Spinner from '../common/Spinner';
 
 export default function BookTable() {
-    const { filteredBooks, onDelete, onEdit, loading } = useBookContext();
+    const { books, onDelete, onEdit, loading } = useBookContext();
 
     if (loading) return <Spinner />;
 
@@ -61,7 +61,7 @@ export default function BookTable() {
                 <thead>
                     <tr className="bg-gray-100 text-left">
                         <th className="px-4 py-2 border">ISBN</th>
-                        <th className="px-4 py-2 border">Título</th>
+                        <th className="px-4 py-2 border">Títulos</th>
                         <th className="px-4 py-2 border">Género</th>
                         <th className="px-4 py-2 border">Publicado</th>
                         <th className="px-4 py-2 border">Sinopsis</th>
@@ -69,7 +69,7 @@ export default function BookTable() {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredBooks.map((book: Book) => (
+                    {books.map((book: Book) => (
                         <tr key={book.isbn} className="hover:bg-blue-50">
                             <td className="px-4 py-2 border">{book.isbn}</td>
 
