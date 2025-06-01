@@ -24,7 +24,7 @@ CREATE TABLE bookapp.dbo.books (
 
 -- 5. Insertar datos en users
 INSERT INTO bookapp.dbo.users (username, email, password)
-VALUES ('abel', 'abel@example.com', 'abel123');
+VALUES ('abel', 'abel@example.com', '$2a$10$9u4.iHMo7YBvGPRGnTyKj.lpHKoFXrG/rAmSJ3YSdF1bg9iuRFZ0C');
 
 -- 6. Insertar datos en books
 INSERT INTO bookapp.dbo.books (isbn, created_at, genre, published_date, synopsis, title, user_id)
