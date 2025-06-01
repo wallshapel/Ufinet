@@ -1,10 +1,17 @@
+import { useEffect, useState } from 'react';
 import { useBookContext } from '../../context/BookContext';
 
 export default function GenreFilter() {
     const { books, selectedGenre, setSelectedGenre } = useBookContext();
 
-    const genres = Array.from(new Set(books.map((b) => b.genre))).sort();
+    const [genres, setGenres] = useState<string[]>([]);
 
+    useEffect(() => {
+        if (genres.length === 0 && books.length > 0) {
+            const uniqueGenres = Array.from(new Set(books.map((b) => b.genre)));
+            setGenres(uniqueGenres.sort());
+        }
+    }, [books]);
     return (
         <div className="mb-4">
             <label htmlFor="genre" className="mr-2 font-medium text-sm">

@@ -13,6 +13,9 @@ services:
       - app-network
 
   prueba-ufinet-backend:
+    build:
+      context: ./bookapp
+      dockerfile: Dockerfile
     image: prueba-ufinet-backend
     container_name: prueba-ufinet-backend
     depends_on:
@@ -29,6 +32,9 @@ services:
 
 
   prueba-ufinet-frontend:
+    build:
+      context: ./my-book-app
+      dockerfile: Dockerfile
     image: prueba-ufinet-frontend
     container_name: prueba-ufinet-frontend
     depends_on:

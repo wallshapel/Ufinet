@@ -1,14 +1,13 @@
-# Utiliza una imagen ligera de Nginx
+# Etapa 1: build del proyecto
+FROM node:18-alpine as build
+WORKDIR /app
+COPY . .
+RUN npm install
+RUN npm run build
+
+# Etapa 2: imagen final con nginx
 FROM nginx:stable-alpine
-
-# Copia el archivo de configuración personalizado de Nginx
+COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Copia la build de React al directorio que Nginx sirve
-COPY dist/ /usr/share/nginx/html
-
-# Expone el puerto por el que se servirá la app
 EXPOSE 80
-
-# Comando por defecto
 CMD ["nginx", "-g", "daemon off;"]
