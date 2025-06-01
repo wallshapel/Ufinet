@@ -33,7 +33,8 @@ docker compose up -d
 
 ### 🛠️ Conexión a la base de datos
 
-Una vez levantados los contenedores, abre tu herramienta favorita (por ejemplo, **DBeaver**) y conéctate al motor de SQL Server con los siguientes parámetros:
+Una vez levantados los contenedores (el contenedor prueba-ufinet-backend
+ fallará, pero es normal), abre tu herramienta favorita (por ejemplo, **DBeaver**) y conéctate al motor de SQL Server con los siguientes parámetros:
 
 -   **Host:** `localhost`
     
