@@ -1,28 +1,11 @@
-import { useEffect, useState } from 'react';
 import { useBookContext } from '../../context/BookContext';
-import { fetchGenresByUser } from '../../api/genreApi';
-import type { Genre } from '../../types/genres/Genre';
 
 export default function GenreFilter() {
-    const { selectedGenre, setSelectedGenre } = useBookContext();
-    const [genres, setGenres] = useState<Genre[]>([]);
-
-    useEffect(() => {
-        const loadGenres = async () => {
-            try {
-                const data = await fetchGenresByUser();
-                setGenres(data);
-            } catch (error) {
-                console.error('Error al cargar géneros:', error);
-            }
-        };
-
-        loadGenres();
-    }, []);
+    const { selectedGenre, setSelectedGenre, genres } = useBookContext();
 
     const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
-        setSelectedGenre(value === "" ? "" : value);
+        setSelectedGenre(value === '' ? '' : value);
     };
 
     return (

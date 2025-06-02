@@ -6,6 +6,7 @@ import type { Errors } from '../../types/books/BookErrors';
 import type { Props } from '../../types/books/BookFormProps';
 import type { Genre } from '../../types/genres/Genre';
 import Spinner from '../common/Spinner';
+import { useBookContext } from '../../context/BookContext';
 
 const LazyGenreModal = lazy(() => import('./genres/GenreModal'));
 
@@ -18,7 +19,7 @@ export default function BookForm({ onAdd }: Props) {
         synopsis: '',
     });
 
-    const [genres, setGenres] = useState<Genre[]>([]);
+    const { genres, setGenres, refreshGenres } = useBookContext();
     const [errors, setErrors] = useState<Errors>({});
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -236,8 +237,8 @@ export default function BookForm({ onAdd }: Props) {
                 <Suspense fallback={<div>Cargando...</div>}>
                     <LazyGenreModal
                         onClose={() => setShowModal(false)}
-                        onGenreCreated={(newGenre) => {
-                            setGenres((prev) => [...prev, newGenre]);
+                        onGenreCreated={async (newGenre) => {
+                            await refreshGenres();
                             setFormData((prev) => ({
                                 ...prev,
                                 genreId: String(newGenre.id),

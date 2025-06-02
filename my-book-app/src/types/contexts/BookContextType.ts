@@ -1,4 +1,5 @@
 import type { Book } from "../books/Book";
+import type { Genre } from "../genres/Genre";
 
 export type BookContextType = {
     books: Book[];
@@ -13,4 +14,7 @@ export type BookContextType = {
     onDelete: (isbn: string) => void;
     onEdit: (book: Book) => void;
     loading: boolean;
+    genres: Genre[];
+    setGenres: (genres: Genre[]) => void;
+    refreshGenres: () => Promise<void>;
 };

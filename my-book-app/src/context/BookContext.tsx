@@ -1,15 +1,15 @@
-// BookContext is only used between Books.tsx and (BookTable.tsx, GenreFilter).
-// Other components use props explicitly.
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { Book } from '../types/books/Book';
+import type { Genre } from '../types/genres/Genre';
+import type { BookContextType } from '../types/contexts/BookContextType';
 import {
     fetchPaginatedBooks,
     deleteBookByIsbn,
     updateBook,
     fetchBooksByGenre,
 } from '../api/bookApi';
+import { fetchGenresByUser } from '../api/genreApi';
 import { getUserIdFromToken } from '../utils/decodeToken';
-import type { BookContextType } from '../types/contexts/BookContextType';
 
 export const BookContext = createContext<BookContextType | null>(null);
 
@@ -26,6 +26,7 @@ export function BookProvider({ children }: { children: React.ReactNode }) {
     const [totalPages, setTotalPages] = useState(0);
     const [selectedGenre, setSelectedGenre] = useState('');
     const [loading, setLoading] = useState(false);
+    const [genres, setGenres] = useState<Genre[]>([]);
 
     const fetchBooks = async () => {
         setLoading(true);
@@ -50,9 +51,26 @@ export function BookProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const fetchGenres = async () => {
+        const token = localStorage.getItem('token');
+        const userId = token ? getUserIdFromToken(token) : null;
+        if (userId === null) return;
+
+        try {
+            const data = await fetchGenresByUser();
+            setGenres(data);
+        } catch (error) {
+            console.error('Error al cargar géneros:', error);
+        }
+    };
+
     useEffect(() => {
         fetchBooks();
     }, [page, size, selectedGenre]);
+
+    useEffect(() => {
+        fetchGenres();
+    }, []);
 
     const onDelete = async (isbn: string) => {
         try {
@@ -60,17 +78,15 @@ export function BookProvider({ children }: { children: React.ReactNode }) {
             const updatedBooks = books.filter((book) => book.isbn !== isbn);
             setBooks(updatedBooks);
 
-            // Si eliminaste el último elemento visible, vuelve a cargar o ajusta la página
             if (updatedBooks.length === 0 && page > 0) {
                 setPage(page - 1);
             } else {
-                await fetchBooks(); // Garantiza consistencia con backend
+                await fetchBooks();
             }
         } catch (error) {
             console.error('Error al eliminar el libro:', error);
         }
     };
-
 
     const onEdit = async (updated: Book) => {
         try {
@@ -99,6 +115,9 @@ export function BookProvider({ children }: { children: React.ReactNode }) {
                 onDelete,
                 onEdit,
                 loading,
+                genres,
+                setGenres,
+                refreshGenres: fetchGenres,
             }}
         >
             {children}
