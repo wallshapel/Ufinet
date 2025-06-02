@@ -3,6 +3,7 @@ import type { Book } from '../types/books/Book';
 import { getUserIdFromToken } from '../utils/decodeToken';
 import type { PaginatedResponse } from '../types/paginations/PaginatedResponse';
 import type { BookPayload } from '../types/books/BookPayload';
+import type { BookUpdatePayload } from '../types/books/BookUpdatePayload';
 
 export async function fetchPaginatedBooks(userId: number, page: number, size: number): Promise<PaginatedResponse> {
     const token = localStorage.getItem('token');
@@ -78,7 +79,7 @@ export async function fetchBookByIsbnAndUserId(isbn: string): Promise<Book> {
     return response.data;
 }
 
-export async function updateBook(updatedBook: Book): Promise<Book> {
+export async function updateBook(updatedBook: BookUpdatePayload): Promise<Book> {
     const token = localStorage.getItem('token');
     const userId = token ? getUserIdFromToken(token) : null;
     if (!token || userId === null) throw new Error('Token inválido');

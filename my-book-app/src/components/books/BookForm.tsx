@@ -232,7 +232,6 @@ export default function BookForm({ onAdd }: Props) {
                 </button>
             </form>
 
-
             {showModal && (
                 <Suspense fallback={<div>Cargando...</div>}>
                     <LazyGenreModal

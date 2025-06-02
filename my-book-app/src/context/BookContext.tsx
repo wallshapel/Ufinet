@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import type { Book } from '../types/books/Book';
 import type { Genre } from '../types/genres/Genre';
 import type { BookContextType } from '../types/contexts/BookContextType';
+import type { BookUpdatePayload } from '../types/books/BookUpdatePayload';
 import {
     fetchPaginatedBooks,
     deleteBookByIsbn,
@@ -88,11 +89,13 @@ export function BookProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    const onEdit = async (updated: Book) => {
+    const onEdit = async (updated: BookUpdatePayload) => {
         try {
             await updateBook(updated);
             setBooks((prev) =>
-                prev.map((book) => (book.isbn === updated.isbn ? updated : book))
+                prev.map((book) =>
+                    book.isbn === updated.isbn ? { ...book, ...updated } : book
+                )
             );
         } catch (error) {
             console.error('Error al editar el libro:', error);

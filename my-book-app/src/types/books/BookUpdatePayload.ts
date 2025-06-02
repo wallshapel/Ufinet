@@ -1,10 +1,8 @@
-export type Book = {
+export interface BookUpdatePayload {
     isbn: string;
     title: string;
     genreId: number;
-    genre: string;
     publishedDate: string;
     synopsis: string;
-    createdAt: string;
     userId: number;
-};
+}
