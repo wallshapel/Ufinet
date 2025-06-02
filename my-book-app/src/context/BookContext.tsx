@@ -57,11 +57,20 @@ export function BookProvider({ children }: { children: React.ReactNode }) {
     const onDelete = async (isbn: string) => {
         try {
             await deleteBookByIsbn(isbn);
-            setBooks((prev) => prev.filter((book) => book.isbn !== isbn));
+            const updatedBooks = books.filter((book) => book.isbn !== isbn);
+            setBooks(updatedBooks);
+
+            // Si eliminaste el último elemento visible, vuelve a cargar o ajusta la página
+            if (updatedBooks.length === 0 && page > 0) {
+                setPage(page - 1);
+            } else {
+                await fetchBooks(); // Garantiza consistencia con backend
+            }
         } catch (error) {
             console.error('Error al eliminar el libro:', error);
         }
     };
+
 
     const onEdit = async (updated: Book) => {
         try {
@@ -71,6 +80,7 @@ export function BookProvider({ children }: { children: React.ReactNode }) {
             );
         } catch (error) {
             console.error('Error al editar el libro:', error);
+            throw error;
         }
     };
 

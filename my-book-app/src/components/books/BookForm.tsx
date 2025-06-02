@@ -236,11 +236,7 @@ export default function BookForm({ onAdd }: Props) {
                 <Suspense fallback={<div>Cargando...</div>}>
                     <LazyGenreModal
                         onClose={() => setShowModal(false)}
-                        onGenreCreated={(newGenreName) => {
-                            const newGenre = {
-                                id: Date.now(),
-                                name: newGenreName,
-                            };
+                        onGenreCreated={(newGenre) => {
                             setGenres((prev) => [...prev, newGenre]);
                             setFormData((prev) => ({
                                 ...prev,

@@ -141,7 +141,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"isbn\": \"9783161484100\",\n  \"title\": \"Clean Code - Updated\",\n  \"genre\": \"Programming\",\n  \"publishedDate\": \"2008-08-01\",\n  \"synopsis\": \"Updated synopsis\",\n  \"userId\": 1\n}",
+					"raw": "{\n  \"isbn\": \"9783161484101\",\n  \"title\": \"Clean Code\",\n  \"genre\": \"Programming\",\n  \"publishedDate\": \"2008-08-01\",\n  \"synopsis\": \"Updated synopsis\",\n  \"userId\": 1\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -225,7 +225,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/v1/books/user/1/genre/2?page=0&size=5",
+					"raw": "http://localhost:8080/api/v1/books/user/1/genre/1?page=0&size=5",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -238,7 +238,7 @@
 						"user",
 						"1",
 						"genre",
-						"2"
+						"1"
 					],
 					"query": [
 						{

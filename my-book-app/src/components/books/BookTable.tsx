@@ -55,88 +55,95 @@ export default function BookTable() {
                 </div>
             )}
 
-            <table className="min-w-full bg-white border border-gray-300">
-                <thead>
-                    <tr className="bg-gray-100 text-left">
-                        <th className="px-4 py-2 border">ISBN</th>
-                        <th className="px-4 py-2 border">Títulos</th>
-                        <th className="px-4 py-2 border">Género</th>
-                        <th className="px-4 py-2 border">Publicado</th>
-                        <th className="px-4 py-2 border">Sinopsis</th>
-                        <th className="px-4 py-2 border">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {books.map((book: Book) => (
-                        <tr key={book.isbn} className="hover:bg-blue-50">
-                            <td className="px-4 py-2 border">{book.isbn}</td>
-
-                            {editingIsbn === book.isbn ? (
-                                <>
-                                    <td className="px-4 py-2 border">
-                                        <input
-                                            name="title"
-                                            value={editForm.title || ''}
-                                            onChange={handleEditChange}
-                                            className="p-1 border rounded w-full"
-                                        />
-                                    </td>
-                                    <td className="px-4 py-2 border">
-                                        <input
-                                            name="genre"
-                                            value={editForm.genre || ''}
-                                            onChange={handleEditChange}
-                                            className="p-1 border rounded w-full"
-                                        />
-                                    </td>
-                                    <td className="px-4 py-2 border">
-                                        <input
-                                            name="publishedDate"
-                                            type="date"
-                                            value={editForm.publishedDate || ''}
-                                            onChange={handleEditChange}
-                                            className="p-1 border rounded w-full"
-                                        />
-                                    </td>
-                                    <td className="px-4 py-2 border">
-                                        <textarea
-                                            name="synopsis"
-                                            value={editForm.synopsis || ''}
-                                            onChange={handleEditChange}
-                                            className="p-1 border rounded w-full resize-none"
-                                        />
-                                    </td>
-                                    <td className="px-4 py-2 border space-x-2">
-                                        <button onClick={confirmEdit} className="text-green-600 text-sm hover:underline">Guardar</button>
-                                        <button onClick={cancelEdit} className="text-gray-600 text-sm hover:underline">Cancelar</button>
-                                    </td>
-                                </>
-                            ) : (
-                                <>
-                                    <td className="px-4 py-2 border">{book.title}</td>
-                                    <td className="px-4 py-2 border">{book.genre}</td>
-                                    <td className="px-4 py-2 border">{book.publishedDate}</td>
-                                    <td className="px-4 py-2 border">{book.synopsis}</td>
-                                    <td className="px-4 py-2 border space-x-2">
-                                        <button
-                                            onClick={() => startEdit(book)}
-                                            className="text-blue-700 text-sm hover:underline"
-                                        >
-                                            Editar
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(book.isbn)}
-                                            className="text-red-600 text-sm hover:underline"
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </td>
-                                </>
-                            )}
+            {books.length === 0 ? (
+                <div className="text-center text-gray-600 mt-4">
+                    No hay libros disponibles para mostrar.
+                </div>
+            ) : (
+                <table className="min-w-full bg-white border border-gray-300">
+                    <thead>
+                        <tr className="bg-gray-100 text-left">
+                            <th className="px-4 py-2 border">ISBN</th>
+                            <th className="px-4 py-2 border">Títulos</th>
+                            <th className="px-4 py-2 border">Género</th>
+                            <th className="px-4 py-2 border">Publicado</th>
+                            <th className="px-4 py-2 border">Sinopsis</th>
+                            <th className="px-4 py-2 border">Acciones</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {books.map((book: Book) => (
+                            <tr key={book.isbn} className="hover:bg-blue-50">
+                                <td className="px-4 py-2 border">{book.isbn}</td>
+
+                                {editingIsbn === book.isbn ? (
+                                    <>
+                                        <td className="px-4 py-2 border">
+                                            <input
+                                                name="title"
+                                                value={editForm.title || ''}
+                                                onChange={handleEditChange}
+                                                className="p-1 border rounded w-full"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-2 border">
+                                            <input
+                                                name="genre"
+                                                value={editForm.genre || ''}
+                                                onChange={handleEditChange}
+                                                className="p-1 border rounded w-full"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-2 border">
+                                            <input
+                                                name="publishedDate"
+                                                type="date"
+                                                value={editForm.publishedDate || ''}
+                                                onChange={handleEditChange}
+                                                className="p-1 border rounded w-full"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-2 border">
+                                            <textarea
+                                                name="synopsis"
+                                                value={editForm.synopsis || ''}
+                                                onChange={handleEditChange}
+                                                className="p-1 border rounded w-full resize-none"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-2 border space-x-2">
+                                            <button onClick={confirmEdit} className="text-green-600 text-sm hover:underline">Guardar</button>
+                                            <button onClick={cancelEdit} className="text-gray-600 text-sm hover:underline">Cancelar</button>
+                                        </td>
+                                    </>
+                                ) : (
+                                    <>
+                                        <td className="px-4 py-2 border">{book.title}</td>
+                                        <td className="px-4 py-2 border">{book.genre}</td>
+                                        <td className="px-4 py-2 border">{book.publishedDate}</td>
+                                        <td className="px-4 py-2 border">{book.synopsis}</td>
+                                        <td className="px-4 py-2 border space-x-2">
+                                            <button
+                                                onClick={() => startEdit(book)}
+                                                className="text-blue-700 text-sm hover:underline"
+                                            >
+                                                Editar
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(book.isbn)}
+                                                className="text-red-600 text-sm hover:underline"
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </td>
+                                    </>
+                                )}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            )}
+
         </div>
     );
 }

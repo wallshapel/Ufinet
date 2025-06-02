@@ -5,7 +5,7 @@ import Spinner from '../../common/Spinner';
 
 interface Props {
     onClose: () => void;
-    onGenreCreated: (genreName: string) => void;
+    onGenreCreated: (genre: { id: number; name: string }) => void;
 }
 
 export default function GenreModal({ onClose, onGenreCreated }: Props) {
@@ -30,10 +30,10 @@ export default function GenreModal({ onClose, onGenreCreated }: Props) {
 
         try {
             setLoading(true);
-            await createGenre({ name, userId });
+            const createdGenre = await createGenre({ name, userId });
             setSuccess(true);
             setTimeout(() => {
-                onGenreCreated(name);
+                onGenreCreated(createdGenre);
             }, 1000);
         } catch (err: any) {
             const status = err.response?.status;
@@ -53,12 +53,9 @@ export default function GenreModal({ onClose, onGenreCreated }: Props) {
         }
     };
 
-    if (loading) {
-        return <Spinner />;
-    }
+    if (loading) return <Spinner />;
 
     return (
-
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-md">
                 <h2 className="text-lg font-bold mb-4">Nuevo género</h2>

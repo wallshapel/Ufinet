@@ -18,14 +18,16 @@ export async function fetchGenresByUser(): Promise<Genre[]> {
     return response.data;
 }
 
-export async function createGenre(data: NewGenre): Promise<void> {
+export async function createGenre(data: NewGenre): Promise<{ id: number; name: string }> {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('Token inválido');
 
-    await axios.post('http://localhost:8080/api/v1/genres', data, {
+    const response = await axios.post('http://localhost:8080/api/v1/genres', data, {
         headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
     });
+
+    return response.data;
 }

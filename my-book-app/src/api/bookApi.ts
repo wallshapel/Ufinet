@@ -78,18 +78,28 @@ export async function fetchBookByIsbnAndUserId(isbn: string): Promise<Book> {
     return response.data;
 }
 
-export async function updateBook(updatedBook: Book): Promise<void> {
+export async function updateBook(updatedBook: Book): Promise<Book> {
     const token = localStorage.getItem('token');
     const userId = token ? getUserIdFromToken(token) : null;
     if (!token || userId === null) throw new Error('Token inválido');
 
-    const bookWithUser = { ...updatedBook, userId };
-
-    await axios.put('http://localhost:8080/api/v1/books', bookWithUser, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
+    try {
+        const bookWithUser = { ...updatedBook, userId };
+        const response = await axios.patch<Book>(
+            'http://localhost:8080/api/v1/books',
+            bookWithUser,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        return response.data;
+    } catch (error: any) {
+        const message = error.response?.data?.message || error.response?.data?.detail || 'Error al actualizar el libro';
+        throw new Error(message);
+    }
 }
 
 export async function fetchBooksByGenre(
@@ -114,4 +124,3 @@ export async function fetchBooksByGenre(
 
     return response.data;
 }
-
