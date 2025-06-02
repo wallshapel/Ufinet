@@ -1,3 +1,5 @@
+// BookContext is only used between Books.tsx and (BookTable.tsx, GenreFilter).
+// Other components use props explicitly.
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { Book } from '../types/books/Book';
 import {
@@ -17,7 +19,7 @@ export const useBookContext = () => {
     return context;
 };
 
-export function BookProvider({ children }: { children: React.ReactNode; userId: number }) {
+export function BookProvider({ children }: { children: React.ReactNode }) {
     const [books, setBooks] = useState<Book[]>([]);
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(5);
@@ -36,7 +38,7 @@ export function BookProvider({ children }: { children: React.ReactNode; userId: 
 
         try {
             const data = selectedGenre
-                ? await fetchBooksByGenre(userId, selectedGenre, page, size)
+                ? await fetchBooksByGenre(userId, Number(selectedGenre), page, size)
                 : await fetchPaginatedBooks(userId, page, size);
 
             setBooks(data.content);

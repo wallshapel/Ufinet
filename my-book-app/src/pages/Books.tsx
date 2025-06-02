@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import Layout from '../components/Layout';
 import BookForm from '../components/books/BookForm';
 import BookTable from '../components/books/BookTable';
@@ -12,9 +12,6 @@ import { getUserIdFromToken } from '../utils/decodeToken';
 
 function BooksInner() {
     const { books, onDelete, page, size, totalPages, setPage, setSize, refreshBooks } = useBookContext();
-    const [genre] = useState('');
-
-    const filteredBooks = genre ? books.filter((b) => b.genre === genre) : books;
 
     return (
         <Layout>
@@ -22,7 +19,7 @@ function BooksInner() {
             <BookForm onAdd={refreshBooks} />
             <GenreFilter />
             <BookTable />
-            <DeleteByIsbn books={filteredBooks} onDelete={onDelete} />
+            <DeleteByIsbn books={books} onDelete={onDelete} />
             <Pagination
                 page={page}
                 size={size}
@@ -48,7 +45,7 @@ export default function Books() {
     if (userId === null) return <Spinner />;
 
     return (
-        <BookProvider userId={userId}>
+        <BookProvider>
             <BooksInner />
         </BookProvider>
     );

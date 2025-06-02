@@ -92,15 +92,26 @@ export async function updateBook(updatedBook: Book): Promise<void> {
     });
 }
 
-export async function fetchBooksByGenre(userId: number, genre: string, page = 0, size = 5): Promise<PaginatedResponse> {
+export async function fetchBooksByGenre(
+    userId: number,
+    genreId: number,
+    page: number,
+    size: number
+): Promise<PaginatedResponse> {
     const token = localStorage.getItem('token');
 
-    const response = await axios.get<PaginatedResponse>('http://localhost:8080/api/v1/books/genre', {
-        params: { userId, genre, page, size },
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
+    if (!token || userId === null) throw new Error('Token inválido');
+
+    const response = await axios.get<PaginatedResponse>(
+        `http://localhost:8080/api/v1/books/user/${userId}/genre/${genreId}`,
+        {
+            params: { page, size },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
 
     return response.data;
 }
+
