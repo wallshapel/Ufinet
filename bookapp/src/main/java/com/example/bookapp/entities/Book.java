@@ -2,6 +2,8 @@ package com.example.bookapp.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,11 +21,12 @@ public class Book {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
-    private String genre;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "genre_id", nullable = false)
+    private Genre genre;
 
     @Column(name = "published_date", nullable = false)
-    private String publishedDate;
+    private LocalDate publishedDate;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String synopsis;

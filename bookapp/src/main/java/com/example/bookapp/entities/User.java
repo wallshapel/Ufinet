@@ -27,7 +27,8 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @jakarta.persistence.Transient
-    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Book> books;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Genre> genres;
 }

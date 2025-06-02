@@ -1,13 +1,16 @@
 package com.example.bookapp.controllers;
 
 import com.example.bookapp.dto.input.BookRegisterDTO;
+import com.example.bookapp.dto.input.BookUpdateDTO;
 import com.example.bookapp.dto.output.BookResponseDTO;
 import com.example.bookapp.services.BookService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,8 +26,8 @@ public class BookController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping
-    public ResponseEntity<BookResponseDTO> update(@Valid @RequestBody BookRegisterDTO dto) {
+    @PatchMapping
+    public ResponseEntity<BookResponseDTO> update(@Validated @RequestBody BookUpdateDTO dto) {
         BookResponseDTO response = bookService.update(dto);
         return ResponseEntity.ok(response);
     }
@@ -45,15 +48,15 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/genre")
-    public ResponseEntity<Page<BookResponseDTO>> getBooksByGenre(
-            @RequestParam String genre,
-            @RequestParam Long userId,
+    @GetMapping("/user/{userId}/genre/{genreId}")
+    public ResponseEntity<Page<BookResponseDTO>> findByGenreAndUser(
+            @PathVariable @Min(1) Long genreId,
+            @PathVariable @Min(1) Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size
     ) {
-        Page<BookResponseDTO> response = bookService.findByGenreAndUserId(genre, userId, page, size);
-        return ResponseEntity.ok(response);
+        Page<BookResponseDTO> result = bookService.findByGenreIdAndUserId(genreId, userId, page, size);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{isbn}")
