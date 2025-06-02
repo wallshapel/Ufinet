@@ -39,14 +39,43 @@ export async function createBook(book: BookPayload): Promise<any> {
 export async function deleteBookByIsbn(isbn: string): Promise<void> {
     const token = localStorage.getItem('token');
     const userId = token ? getUserIdFromToken(token) : null;
+
     if (!token || userId === null) throw new Error('Token inválido');
 
-    await axios.delete(`http://localhost:8080/api/v1/books/${isbn}`, {
+    try {
+        await axios.delete(`http://localhost:8080/api/v1/books/${isbn}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            params: { userId },
+        });
+    } catch (error: any) {
+        const message = error.response?.data?.message || error.response?.data?.detail;
+
+        if (error.response?.status === 404) {
+            throw new Error(message || 'Libro o usuario no encontrado');
+        } else if (error.response?.status === 400) {
+            throw new Error(message || 'Petición incorrecta');
+        } else {
+            throw new Error('Error al intentar eliminar el libro');
+        }
+    }
+}
+
+export async function fetchBookByIsbnAndUserId(isbn: string): Promise<Book> {
+    const token = localStorage.getItem('token');
+    const userId = token ? getUserIdFromToken(token) : null;
+
+    if (!token || userId === null) throw new Error('Token inválido');
+
+    const response = await axios.get<Book>(`http://localhost:8080/api/v1/books/${isbn}`, {
         headers: {
             Authorization: `Bearer ${token}`,
         },
         params: { userId },
     });
+
+    return response.data;
 }
 
 export async function updateBook(updatedBook: Book): Promise<void> {
