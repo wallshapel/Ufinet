@@ -1,7 +1,7 @@
-export type Errors = {
+export interface Errors {
     isbn?: string;
     title?: string;
-    genre?: string;
+    genreId?: string;
     publishedDate?: string;
     synopsis?: string;
-};
+}

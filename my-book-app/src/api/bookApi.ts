@@ -2,6 +2,7 @@ import axios from 'axios';
 import type { Book } from '../types/books/Book';
 import { getUserIdFromToken } from '../utils/decodeToken';
 import type { PaginatedResponse } from '../types/paginations/PaginatedResponse';
+import type { BookPayload } from '../types/books/BookPayload';
 
 export async function fetchPaginatedBooks(userId: number, page: number, size: number): Promise<PaginatedResponse> {
     const token = localStorage.getItem('token');
@@ -16,7 +17,7 @@ export async function fetchPaginatedBooks(userId: number, page: number, size: nu
     return response.data;
 }
 
-export async function createBook(book: Omit<Book, 'createdAt'>): Promise<Book> {
+export async function createBook(book: BookPayload): Promise<any> {
     const token = localStorage.getItem('token');
 
     if (!token) throw new Error('No token found');
