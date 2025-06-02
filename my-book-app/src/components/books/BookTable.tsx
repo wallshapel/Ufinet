@@ -1,7 +1,6 @@
 import { useState, Suspense, lazy } from 'react';
 import { getUserIdFromToken } from '../../utils/decodeToken';
 import type { Book } from '../../types/books/Book';
-import type { BookUpdatePayload } from '../../types/books/BookUpdatePayload';
 import { useBookContext } from '../../context/BookContext';
 
 const LazyGenreModal = lazy(() => import('./genres/GenreModal'));

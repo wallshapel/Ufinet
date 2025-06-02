@@ -4,7 +4,6 @@ import { fetchGenresByUser } from '../../api/genreApi';
 import { getUserIdFromToken } from '../../utils/decodeToken';
 import type { Errors } from '../../types/books/BookErrors';
 import type { Props } from '../../types/books/BookFormProps';
-import type { Genre } from '../../types/genres/Genre';
 import Spinner from '../common/Spinner';
 import { useBookContext } from '../../context/BookContext';
 
