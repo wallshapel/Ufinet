@@ -14,4 +14,5 @@ public class BookResponseDTO {
     private String genre;
     private LocalDate publishedDate;
     private String synopsis;
+    private String coverImagePath;
 }

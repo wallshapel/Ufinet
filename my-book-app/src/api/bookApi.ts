@@ -130,3 +130,44 @@ export async function fetchBooksByGenre(
 
     return response.data;
 }
+
+export async function uploadBookCover(isbn: string, coverFile: File): Promise<void> {
+    const token = localStorage.getItem('token');
+    const userId = token ? getUserIdFromToken(token) : null;
+
+    if (!token || userId === null) {
+        throw new Error('Token inválido o usuario no autenticado');
+    }
+
+    const formData = new FormData();
+    formData.append('file', coverFile);
+
+    await axios.patch(
+        `http://localhost:8080/api/v1/books/${isbn}/cover`,
+        formData,
+        {
+            params: { userId },
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        }
+    );
+}
+
+export async function fetchProtectedBookCover(userId: number, coverPath: string): Promise<string> {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Token no encontrado');
+
+    const response = await axios.get(
+        `http://localhost:8080/api/v1/books/cover?userId=${userId}&path=${encodeURIComponent(coverPath)}`,
+        {
+            responseType: 'blob',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    return URL.createObjectURL(response.data);
+}

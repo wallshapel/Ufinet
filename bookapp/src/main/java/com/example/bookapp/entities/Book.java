@@ -39,6 +39,9 @@ public class Book {
     @com.fasterxml.jackson.annotation.JsonIgnore
     private User user;
 
+    @Column(name = "cover_image_path")
+    private String coverImagePath;
+
     @PrePersist
     public void prePersist() {
         if (createdAt == null) {

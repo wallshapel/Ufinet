@@ -6,6 +6,8 @@ import type { Errors } from '../../types/books/BookErrors';
 import type { Props } from '../../types/books/BookFormProps';
 import Spinner from '../common/Spinner';
 import { useBookContext } from '../../context/BookContext';
+import { uploadBookCover } from '../../api/bookApi';
+
 
 const LazyGenreModal = lazy(() => import('./genres/GenreModal'));
 
@@ -23,6 +25,7 @@ export default function BookForm({ onAdd }: Props) {
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [coverFile, setCoverFile] = useState<File | null>(null);
 
     useEffect(() => {
         const loadGenres = async () => {
@@ -35,6 +38,13 @@ export default function BookForm({ onAdd }: Props) {
         };
         loadGenres();
     }, []);
+
+    useEffect(() => {
+        document.body.style.cursor = loading ? 'wait' : 'default';
+        return () => {
+            document.body.style.cursor = 'default';
+        };
+    }, [loading]);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -65,6 +75,22 @@ export default function BookForm({ onAdd }: Props) {
             return;
         }
 
+        const newErrors: Record<string, string> = {};
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+
+        if (coverFile) {
+            if (!validTypes.includes(coverFile.type)) {
+                newErrors.coverFile = 'Solo se permiten imágenes JPG o PNG';
+            } else if (coverFile.size > 5 * 1024 * 1024) {
+                newErrors.coverFile = 'El tamaño máximo permitido es 5MB';
+            }
+
+            if (Object.keys(newErrors).length > 0) {
+                setErrors((prev) => ({ ...prev, ...newErrors }));
+                return; // ❌ Detenemos el flujo si la imagen es inválida
+            }
+        }
+
         const bookToSend = {
             isbn: formData.isbn,
             title: formData.title,
@@ -79,6 +105,19 @@ export default function BookForm({ onAdd }: Props) {
             const newBook = await createBook(bookToSend);
             onAdd(newBook);
 
+            if (coverFile) {
+                try {
+                    await uploadBookCover(newBook.isbn, coverFile);
+                } catch (error) {
+                    console.error('Error al subir la portada:', error);
+                    setErrors((prev) => ({
+                        ...prev,
+                        coverFile: 'Ocurrió un error al subir la imagen',
+                    }));
+                    return;
+                }
+            }
+
             setFormData({
                 isbn: '',
                 title: '',
@@ -86,7 +125,7 @@ export default function BookForm({ onAdd }: Props) {
                 publishedDate: '',
                 synopsis: '',
             });
-
+            setCoverFile(null);
             setErrors({});
             setSuccess(true);
             setTimeout(() => setSuccess(false), 3000);
@@ -222,12 +261,37 @@ export default function BookForm({ onAdd }: Props) {
                     )}
                 </div>
 
+                {/* Portada */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Portada (opcional)</label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
+                        className="p-2 border border-gray-300 rounded w-full"
+                    />
+                    {errors.coverFile && (
+                        <p className="text-red-600 text-sm mt-1">{errors.coverFile}</p>
+                    )}
+                </div>
+
                 {/* Botón de envío */}
                 <button
                     type="submit"
-                    className="bg-blue-700 text-white py-2 px-4 rounded hover:bg-blue-800"
+                    disabled={loading}
+                    className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50 flex items-center gap-2"
                 >
-                    Agregar libro
+                    {loading && (
+                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
+                        />
+                    </svg>
+                    )}
+                    {loading ? 'Guardando...' : 'Guardar'}
                 </button>
             </form>
 

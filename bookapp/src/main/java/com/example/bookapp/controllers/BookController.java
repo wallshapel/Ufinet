@@ -7,11 +7,18 @@ import com.example.bookapp.services.BookService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @RestController
 @RequestMapping("/api/v1/books")
@@ -67,4 +74,33 @@ public class BookController {
         BookResponseDTO response = bookService.findByIsbnAndUserId(isbn, userId);
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/{isbn}/cover")
+    public ResponseEntity<Void> updateCoverImage(
+            @PathVariable String isbn,
+            @RequestParam Long userId,
+            @RequestParam("file") MultipartFile file
+    ) {
+        bookService.updateCoverImage(isbn, userId, file);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/cover")
+    public ResponseEntity<Resource> getCoverImage(
+            @RequestParam Long userId,
+            @RequestParam String path
+    ) {
+        Resource image = bookService.getCoverImageForUser(userId, path);
+
+        try {
+            String contentType = Files.probeContentType(Path.of(image.getFile().getAbsolutePath()));
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType != null ? contentType : "application/octet-stream"))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + image.getFilename() + "\"")
+                    .body(image);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }

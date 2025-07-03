@@ -1,7 +1,9 @@
-import { useState, Suspense, lazy } from 'react';
+import { useState, Suspense, lazy, useEffect } from 'react';
 import { getUserIdFromToken } from '../../utils/decodeToken';
 import type { Book } from '../../types/books/Book';
 import { useBookContext } from '../../context/BookContext';
+import ImageModal from './ImageModal';
+import { fetchProtectedBookCover } from '../../api/bookApi';
 
 const LazyGenreModal = lazy(() => import('./genres/GenreModal'));
 
@@ -12,6 +14,8 @@ export default function BookTable() {
     const [editForm, setEditForm] = useState<Partial<Book>>({});
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [showModal, setShowModal] = useState(false);
+    const [selectedCover, setSelectedCover] = useState<string | null>(null);
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
 
     const showTemporaryMessage = (text: string, type: 'success' | 'error' = 'success') => {
         if (!text) return;
@@ -98,11 +102,48 @@ export default function BookTable() {
 
     };
 
-
     const handleDelete = (isbn: string) => {
         onDelete(isbn);
         showTemporaryMessage('Libro eliminado correctamente.');
     };
+
+    useEffect(() => {
+        const getImage = async () => {
+            if (!selectedCover) {
+                setImageUrl(null);
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            const userId = token ? getUserIdFromToken(token) : null;
+
+            if (!userId) {
+                console.warn('Usuario no autenticado al intentar obtener portada');
+                setImageUrl(null);
+                return;
+            }
+
+            // Extraemos el ISBN del path recibido (ej. "1234567890/cover.jpg")
+            const isbn = selectedCover.split('/')[0];
+
+            try {
+                const blobUrl = await fetchProtectedBookCover(userId, `${isbn}/cover.jpg`);
+                setImageUrl(blobUrl);
+            } catch (error) {
+                console.error('Error obteniendo imagen protegida', error);
+                setImageUrl(null);
+            }
+
+            return () => {
+                if (imageUrl) {
+                    URL.revokeObjectURL(imageUrl);
+                    setImageUrl(null);
+                }
+            };
+        };
+
+        getImage();
+    }, [selectedCover]);
 
     return (
         <>
@@ -132,6 +173,7 @@ export default function BookTable() {
                                 <th className="px-4 py-2 border">Género</th>
                                 <th className="px-4 py-2 border">Publicado</th>
                                 <th className="px-4 py-2 border">Sinopsis</th>
+                                <th className="px-4 py-2 border">Portada</th>
                                 <th className="px-4 py-2 border">Acciones</th>
                             </tr>
                         </thead>
@@ -191,6 +233,10 @@ export default function BookTable() {
                                                     className="p-1 border rounded w-full resize-none"
                                                 />
                                             </td>
+
+                                            {/* Celda vacía de portada durante la edición */}
+                                            <td className="px-4 py-2 border text-center text-gray-400 italic">—</td>
+
                                             <td className="px-4 py-2 border space-x-2">
                                                 <button
                                                     onClick={confirmEdit}
@@ -212,6 +258,21 @@ export default function BookTable() {
                                             <td className="px-4 py-2 border">{book.genre}</td>
                                             <td className="px-4 py-2 border">{book.publishedDate}</td>
                                             <td className="px-4 py-2 border">{book.synopsis}</td>
+
+                                            {/* Nueva columna: Portada */}
+                                            <td className="px-4 py-2 border text-center">
+                                                {book.coverImagePath ? (
+                                                    <button
+                                                        onClick={() => setSelectedCover(book.coverImagePath!)}
+                                                        className="text-indigo-600 hover:underline text-sm"
+                                                    >
+                                                        Ver
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-gray-400 text-sm italic">Sin portada</span>
+                                                )}
+                                            </td>
+
                                             <td className="px-4 py-2 border space-x-2">
                                                 <button
                                                     onClick={() => startEdit(book)}
@@ -248,7 +309,13 @@ export default function BookTable() {
                             setShowModal(false);
                         }}
                     />
-                </Suspense>
+                </Suspense>            
+            )}
+            {selectedCover && imageUrl && (
+                <ImageModal
+                    src={imageUrl}
+                    onClose={() => setSelectedCover(null)}
+                />
             )}
         </>
     );

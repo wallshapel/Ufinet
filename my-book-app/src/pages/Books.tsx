@@ -15,7 +15,7 @@ function BooksInner() {
 
     return (
         <Layout>
-            <h2 className="text-2xl font-bold mb-4">Mis libros</h2>
+            <h2 className="text-2xl font-bold mb-4">Nuevo libro</h2>
             <BookForm onAdd={refreshBooks} />
             <GenreFilter />
             <BookTable />

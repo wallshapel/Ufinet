@@ -7,4 +7,5 @@ export type Book = {
     synopsis: string;
     createdAt: string;
     userId: number;
+    coverImagePath?: string;
 };
