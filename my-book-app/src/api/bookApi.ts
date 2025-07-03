@@ -98,8 +98,13 @@ export async function updateBook(updatedBook: BookUpdatePayload): Promise<Book> 
         );
         return response.data;
     } catch (error: any) {
-        const message = error.response?.data?.message || error.response?.data?.detail || 'Error al actualizar el libro';
-        throw new Error(message);
+        // ✅ Lanzamos el error del backend tal cual para que el frontend lo maneje
+        if (error.response?.data && typeof error.response.data === 'object') {
+            throw error.response.data;
+        }
+
+        // Fallback si el backend responde algo raro
+        throw new Error('Error al actualizar el libro');
     }
 }
 

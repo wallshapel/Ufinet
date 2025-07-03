@@ -10,12 +10,17 @@ export default function BookTable() {
 
     const [editingIsbn, setEditingIsbn] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<Partial<Book>>({});
-    const [message, setMessage] = useState<string | null>(null);
+    const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [showModal, setShowModal] = useState(false);
 
-    const showTemporaryMessage = (msg: string) => {
-        setMessage(msg);
-        setTimeout(() => setMessage(null), 3000);
+    const showTemporaryMessage = (text: string, type: 'success' | 'error' = 'success') => {
+        if (!text) return;
+
+        setMessage({ type, text });
+
+        if (type === 'success') {
+            setTimeout(() => setMessage(null), 3000);
+        }
     };
 
     const startEdit = (book: Book) => {
@@ -47,7 +52,7 @@ export default function BookTable() {
         });
     };
 
-    const confirmEdit = () => {
+    const confirmEdit = async () => {
         const { isbn, title, genreId, publishedDate, synopsis } = editForm;
 
         if (!isbn || !title || !genreId || !publishedDate || !synopsis) {
@@ -73,13 +78,26 @@ export default function BookTable() {
             publishedDate,
             synopsis,
             userId,
-            createdAt: new Date().toISOString(), // ⚠️ Puedes reemplazar esto si tienes una mejor fuente
+            createdAt: new Date().toISOString(),
         };
 
-        onEdit(updatedBook);
-        setEditingIsbn(null);
-        showTemporaryMessage('Libro editado correctamente.');
+        try {
+            await onEdit(updatedBook);
+            setEditingIsbn(null);
+            showTemporaryMessage('Libro editado correctamente.');
+        } catch (error: any) {
+            const backendError = error?.response?.data || error;
+
+            if (typeof backendError === 'object') {
+                const allMessages = Object.values(backendError).join('\n');
+                showTemporaryMessage(allMessages, 'error');
+            } else {
+                showTemporaryMessage('Error al editar el libro.', 'error');
+            }
+        }
+
     };
+
 
     const handleDelete = (isbn: string) => {
         onDelete(isbn);
@@ -90,9 +108,15 @@ export default function BookTable() {
         <>
             <div className="overflow-x-auto">
                 {message && (
-                    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 mb-4 rounded text-sm max-w-4xl">
-                        {message}
-                    </div>
+                  <div
+                    className={`${
+                      message.type === 'success'
+                        ? 'bg-green-100 border border-green-400 text-green-700'
+                        : 'bg-red-100 border border-red-400 text-red-700'
+                    } px-4 py-2 mb-4 rounded text-sm max-w-4xl`}
+                  >
+                    {message?.text || '⚠️ Ha ocurrido un error inesperado'}
+                  </div>
                 )}
 
                 {books.length === 0 ? (

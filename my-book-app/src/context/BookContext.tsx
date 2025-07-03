@@ -79,7 +79,7 @@ export function BookProvider({ children }: { children: React.ReactNode }) {
             const updatedBooks = books.filter((book) => book.isbn !== isbn);
             setBooks(updatedBooks);
 
-            if (updatedBooks.length === 0 && page > 0) {
+            if (updatedBooks.length === 0 && page > 0) { // Si la página queda vacía y no es la primera, retrocede una página
                 setPage(page - 1);
             } else {
                 await fetchBooks();
