@@ -7,6 +7,7 @@ import type { Props } from '../../types/books/BookFormProps';
 import Spinner from '../common/Spinner';
 import { useBookContext } from '../../context/BookContext';
 import { uploadBookCover } from '../../api/bookApi';
+import CoverInput from '../common/CoverInput';
 
 
 const LazyGenreModal = lazy(() => import('./genres/GenreModal'));
@@ -20,7 +21,7 @@ export default function BookForm({ onAdd }: Props) {
         synopsis: '',
     });
 
-    const { genres, setGenres, refreshGenres } = useBookContext();
+    const { genres, setGenres, refreshGenres, refreshBooks } = useBookContext();
     const [errors, setErrors] = useState<Errors>({});
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -108,6 +109,7 @@ export default function BookForm({ onAdd }: Props) {
             if (coverFile) {
                 try {
                     await uploadBookCover(newBook.isbn, coverFile);
+                    await refreshBooks();
                 } catch (error) {
                     console.error('Error al subir la portada:', error);
                     setErrors((prev) => ({
@@ -264,11 +266,15 @@ export default function BookForm({ onAdd }: Props) {
                 {/* Portada */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Portada (opcional)</label>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
-                        className="p-2 border border-gray-300 rounded w-full"
+                    <CoverInput
+                        currentFile={coverFile || undefined}
+                        onValidFileSelect={(file) => setCoverFile(file)}
+                        showError={(msg) =>
+                            setErrors((prev) => ({
+                                ...prev,
+                                coverFile: msg,
+                            }))
+                        }
                     />
                     {errors.coverFile && (
                         <p className="text-red-600 text-sm mt-1">{errors.coverFile}</p>

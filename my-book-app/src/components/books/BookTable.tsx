@@ -3,7 +3,8 @@ import { getUserIdFromToken } from '../../utils/decodeToken';
 import type { Book } from '../../types/books/Book';
 import { useBookContext } from '../../context/BookContext';
 import ImageModal from './ImageModal';
-import { fetchProtectedBookCover } from '../../api/bookApi';
+import { fetchProtectedBookCover, uploadBookCover } from '../../api/bookApi';
+import CoverInput from '../common/CoverInput';
 
 const LazyGenreModal = lazy(() => import('./genres/GenreModal'));
 
@@ -11,7 +12,7 @@ export default function BookTable() {
     const { books, onDelete, onEdit, genres, refreshGenres } = useBookContext();
 
     const [editingIsbn, setEditingIsbn] = useState<string | null>(null);
-    const [editForm, setEditForm] = useState<Partial<Book>>({});
+    const [editForm, setEditForm] = useState<Partial<Book> & { coverFile?: File }>({});
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [selectedCover, setSelectedCover] = useState<string | null>(null);
@@ -87,6 +88,15 @@ export default function BookTable() {
 
         try {
             await onEdit(updatedBook);
+            // Si hay nueva portada, la subimos después de editar los datos
+            if (editForm.coverFile) {
+                try {
+                    await uploadBookCover(isbn, editForm.coverFile);
+                } catch (error) {
+                    console.error('Error al subir la portada:', error);
+                    showTemporaryMessage('Libro editado, pero hubo un error al subir la portada.', 'error');
+                }
+            }
             setEditingIsbn(null);
             showTemporaryMessage('Libro editado correctamente.');
         } catch (error: any) {
@@ -99,6 +109,8 @@ export default function BookTable() {
                 showTemporaryMessage('Error al editar el libro.', 'error');
             }
         }
+
+        setEditForm({});
 
     };
 
@@ -234,8 +246,18 @@ export default function BookTable() {
                                                 />
                                             </td>
 
-                                            {/* Celda vacía de portada durante la edición */}
-                                            <td className="px-4 py-2 border text-center text-gray-400 italic">—</td>
+                                            <td className="px-4 py-2 border">
+                                                <CoverInput
+                                                    currentFile={editForm.coverFile}
+                                                    onValidFileSelect={(file) =>
+                                                        setEditForm((prev) => ({
+                                                            ...prev,
+                                                            coverFile: file,
+                                                        }))
+                                                    }
+                                                    showError={(msg) => showTemporaryMessage(msg, 'error')}
+                                                />
+                                            </td>
 
                                             <td className="px-4 py-2 border space-x-2">
                                                 <button

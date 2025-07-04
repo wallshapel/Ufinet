@@ -9,11 +9,14 @@ export async function fetchGenresByUser(): Promise<Genre[]> {
 
     if (!token || userId === null) throw new Error('Token inválido');
 
-    const response = await axios.get<Genre[]>(`http://localhost:8080/api/v1/genres/user/${userId}`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
+    const response = await axios.get<Genre[]>(
+        `http://localhost:8080/api/v1/genres/user/${userId}`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
 
     return response.data;
 }
@@ -22,12 +25,16 @@ export async function createGenre(data: NewGenre): Promise<{ id: number; name: s
     const token = localStorage.getItem('token');
     if (!token) throw new Error('Token inválido');
 
-    const response = await axios.post('http://localhost:8080/api/v1/genres', data, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        },
-    });
+    const response = await axios.post(
+        'http://localhost:8080/api/v1/genres',
+        data,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        }
+    );
 
     return response.data;
 }

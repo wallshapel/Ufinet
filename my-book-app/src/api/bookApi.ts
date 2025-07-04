@@ -8,7 +8,7 @@ import type { BookUpdatePayload } from '../types/books/BookUpdatePayload';
 export async function fetchPaginatedBooks(userId: number, page: number, size: number): Promise<PaginatedResponse> {
     const token = localStorage.getItem('token');
 
-    const response = await axios.get<PaginatedResponse>('http://localhost:8080/api/v1/books', {
+    const response = await axios.get<PaginatedResponse>(`http://localhost:8080/api/v1/books`, {
         params: { userId, page, size },
         headers: {
             Authorization: `Bearer ${token}`,
@@ -18,7 +18,7 @@ export async function fetchPaginatedBooks(userId: number, page: number, size: nu
     return response.data;
 }
 
-export async function createBook(book: BookPayload): Promise<any> {
+export async function createBook(book: BookPayload): Promise<Book> {
     const token = localStorage.getItem('token');
 
     if (!token) throw new Error('No token found');
@@ -98,12 +98,9 @@ export async function updateBook(updatedBook: BookUpdatePayload): Promise<Book> 
         );
         return response.data;
     } catch (error: any) {
-        // ✅ Lanzamos el error del backend tal cual para que el frontend lo maneje
         if (error.response?.data && typeof error.response.data === 'object') {
             throw error.response.data;
         }
-
-        // Fallback si el backend responde algo raro
         throw new Error('Error al actualizar el libro');
     }
 }
