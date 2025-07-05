@@ -21,7 +21,7 @@ public interface BookService {
 
     BookResponseDTO findByIsbnAndUserId(String isbn, Long userId);
 
-    void updateCoverImage(String isbn, Long userId, MultipartFile file);
+    BookResponseDTO updateCoverImage(String isbn, Long userId, MultipartFile file);
 
     Resource getCoverImageForUser(Long userId, String path);
 }

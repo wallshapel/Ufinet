@@ -16,7 +16,6 @@ public class ImageStorageServiceImpl implements ImageStorageService {
 
     @Override
     public String storeCoverImage(MultipartFile file, String isbn) {
-        // 🔒 Validaciones
         if (file.isEmpty()) throw new IllegalArgumentException("El archivo está vacío");
 
         String contentType = file.getContentType();
@@ -29,19 +28,31 @@ public class ImageStorageServiceImpl implements ImageStorageService {
         }
 
         try {
-            // 🧱 Directorio en disco
             Path uploadDir = Paths.get(BASE_UPLOAD_DIR + isbn).toAbsolutePath();
+
+            // 🧹 Eliminar archivos existentes si el directorio ya existe
+            if (Files.exists(uploadDir)) {
+                Files.list(uploadDir).forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error al eliminar archivo anterior de portada: " + path, e);
+                    }
+                });
+            }
+
+            // 🏗️ Crear directorio si no existe (o recrear si se vació)
             Files.createDirectories(uploadDir);
 
-            // 📎 Nombre del archivo
+            // 📎 Definir extensión y nombre final
             String extension = contentType.contains("png") ? ".png" : ".jpg";
             String fileName = "cover" + extension;
-
-            // 🗂 Ruta completa
             Path filePath = uploadDir.resolve(fileName);
+
+            // 💾 Guardar nuevo archivo
             file.transferTo(filePath.toFile());
 
-            // 🔁 Devolver solo ruta relativa
+            // 🔁 Devolver ruta relativa
             return isbn + "/" + fileName;
 
         } catch (IOException e) {

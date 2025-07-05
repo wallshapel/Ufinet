@@ -76,13 +76,13 @@ public class BookController {
     }
 
     @PatchMapping("/{isbn}/cover")
-    public ResponseEntity<Void> updateCoverImage(
+    public ResponseEntity<BookResponseDTO> updateCoverImage(
             @PathVariable String isbn,
             @RequestParam Long userId,
             @RequestParam("file") MultipartFile file
     ) {
-        bookService.updateCoverImage(isbn, userId, file);
-        return ResponseEntity.noContent().build();
+        BookResponseDTO updated = bookService.updateCoverImage(isbn, userId, file);
+        return ResponseEntity.ok(updated);
     }
 
     @GetMapping("/cover")

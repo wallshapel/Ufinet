@@ -1,36 +1,24 @@
-import axios from 'axios';
 import type { Genre } from '../types/genres/Genre';
-import { getUserIdFromToken } from '../utils/decodeToken';
 import type { NewGenre } from '../types/genres/NewGenre';
+import { getAuthData } from '../utils/decodeToken';
+import axiosInstance from './axiosInstance';
 
 export async function fetchGenresByUser(): Promise<Genre[]> {
-    const token = localStorage.getItem('token');
-    const userId = token ? getUserIdFromToken(token) : null;
+    const { userId } = getAuthData();
 
-    if (!token || userId === null) throw new Error('Token inválido');
-
-    const response = await axios.get<Genre[]>(
-        `http://localhost:8080/api/v1/genres/user/${userId}`,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }
+    const response = await axiosInstance.get<Genre[]>(
+        `/genres/user/${userId}`
     );
 
     return response.data;
 }
 
 export async function createGenre(data: NewGenre): Promise<{ id: number; name: string }> {
-    const token = localStorage.getItem('token');
-    if (!token) throw new Error('Token inválido');
-
-    const response = await axios.post(
-        'http://localhost:8080/api/v1/genres',
+    const response = await axiosInstance.post(
+        `/genres`,
         data,
         {
             headers: {
-                Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
         }

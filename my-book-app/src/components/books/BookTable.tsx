@@ -3,7 +3,7 @@ import { getUserIdFromToken } from '../../utils/decodeToken';
 import type { Book } from '../../types/books/Book';
 import { useBookContext } from '../../context/BookContext';
 import ImageModal from './ImageModal';
-import { fetchProtectedBookCover, uploadBookCover } from '../../api/bookApi';
+import { fetchBookByIsbnAndUserId, fetchProtectedBookCover, uploadBookCover } from '../../api/bookApi';
 import CoverInput from '../common/CoverInput';
 
 const LazyGenreModal = lazy(() => import('./genres/GenreModal'));
@@ -17,6 +17,7 @@ export default function BookTable() {
     const [showModal, setShowModal] = useState(false);
     const [selectedCover, setSelectedCover] = useState<string | null>(null);
     const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const { setBooks } = useBookContext(); 
 
     const showTemporaryMessage = (text: string, type: 'success' | 'error' = 'success') => {
         if (!text) return;
@@ -88,20 +89,30 @@ export default function BookTable() {
 
         try {
             await onEdit(updatedBook);
-            // Si hay nueva portada, la subimos después de editar los datos
+
             if (editForm.coverFile) {
                 try {
                     await uploadBookCover(isbn, editForm.coverFile);
+
+                    // 🆕 Forzar recarga del libro actualizado para obtener coverImagePath correcto
+                    const updated = await fetchBookByIsbnAndUserId(isbn);
+
+                    setBooks((prev: Book[]) =>
+                        prev.map((book: Book) =>
+                            book.isbn === isbn ? updated : book
+                        )
+                    );
+
                 } catch (error) {
                     console.error('Error al subir la portada:', error);
                     showTemporaryMessage('Libro editado, pero hubo un error al subir la portada.', 'error');
                 }
             }
+
             setEditingIsbn(null);
             showTemporaryMessage('Libro editado correctamente.');
         } catch (error: any) {
             const backendError = error?.response?.data || error;
-
             if (typeof backendError === 'object') {
                 const allMessages = Object.values(backendError).join('\n');
                 showTemporaryMessage(allMessages, 'error');
@@ -139,7 +150,7 @@ export default function BookTable() {
             const isbn = selectedCover.split('/')[0];
 
             try {
-                const blobUrl = await fetchProtectedBookCover(userId, `${isbn}/cover.jpg`);
+                const blobUrl = await fetchProtectedBookCover(userId, selectedCover);
                 setImageUrl(blobUrl);
             } catch (error) {
                 console.error('Error obteniendo imagen protegida', error);

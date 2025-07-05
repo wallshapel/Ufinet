@@ -107,6 +107,7 @@ export function BookProvider({ children }: { children: React.ReactNode }) {
         <BookContext.Provider
             value={{
                 books,
+                setBooks,
                 page,
                 size,
                 totalPages,

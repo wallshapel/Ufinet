@@ -4,6 +4,7 @@ import type { Genre } from "../genres/Genre";
 
 export type BookContextType = {
     books: Book[];
+    setBooks: React.Dispatch<React.SetStateAction<Book[]>>;
     page: number;
     size: number;
     totalPages: number;

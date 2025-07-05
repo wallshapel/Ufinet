@@ -115,21 +115,26 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public void updateCoverImage(String isbn, Long userId, MultipartFile file) {
+    public BookResponseDTO updateCoverImage(String isbn, Long userId, MultipartFile file) {
         Book book = bookRepository.findByIsbnAndUserId(isbn, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado para el usuario"));
-        // Validaciones
+
         if (file.isEmpty()) throw new IllegalArgumentException("El archivo está vacío");
+
         String contentType = file.getContentType();
         if (contentType == null || !contentType.matches("image/(jpeg|png|jpg)")) {
             throw new IllegalArgumentException("Solo se permiten imágenes JPG o PNG");
         }
+
         if (file.getSize() > 5 * 1024 * 1024) {
             throw new IllegalArgumentException("El tamaño máximo permitido es 5MB");
         }
+
         String imagePath = imageStorageService.storeCoverImage(file, isbn);
         book.setCoverImagePath(imagePath);
-        bookRepository.save(book);
+        Book saved = bookRepository.save(book);
+
+        return toBookResponseDTO(saved);
     }
 
     @Override
