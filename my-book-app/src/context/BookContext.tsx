@@ -10,7 +10,7 @@ import {
     fetchBooksByGenre,
 } from '../api/bookApi';
 import { fetchGenresByUser } from '../api/genreApi';
-import { getUserIdFromToken } from '../utils/decodeToken';
+import { getAuthData } from '../utils/decodeToken';
 
 export const BookContext = createContext<BookContextType | null>(null);
 
@@ -31,9 +31,11 @@ export function BookProvider({ children }: { children: React.ReactNode }) {
 
     const fetchBooks = async () => {
         setLoading(true);
-        const token = localStorage.getItem('token');
-        const userId = token ? getUserIdFromToken(token) : null;
-        if (userId === null) {
+        let userId: number;
+
+        try {
+            userId = getAuthData().userId;
+        } catch {
             setLoading(false);
             return;
         }
@@ -53,15 +55,12 @@ export function BookProvider({ children }: { children: React.ReactNode }) {
     };
 
     const fetchGenres = async () => {
-        const token = localStorage.getItem('token');
-        const userId = token ? getUserIdFromToken(token) : null;
-        if (userId === null) return;
-
         try {
+            getAuthData(); // solo para asegurar que el token sea válido
             const data = await fetchGenresByUser();
             setGenres(data);
-        } catch (error) {
-            console.error('Error al cargar géneros:', error);
+        } catch {
+            // No hace nada si el usuario no está autenticado
         }
     };
 
@@ -79,7 +78,7 @@ export function BookProvider({ children }: { children: React.ReactNode }) {
             const updatedBooks = books.filter((book) => book.isbn !== isbn);
             setBooks(updatedBooks);
 
-            if (updatedBooks.length === 0 && page > 0) { // Si la página queda vacía y no es la primera, retrocede una página
+            if (updatedBooks.length === 0 && page > 0) {
                 setPage(page - 1);
             } else {
                 await fetchBooks();

@@ -15,12 +15,12 @@ export default function CoverInput({ onValidFileSelect, currentFile, showError }
         const maxSize = 5 * 1024 * 1024; // 5MB
 
         if (!validTypes.includes(file.type)) {
-            showError('Solo se permiten imágenes JPG o PNG');
+            showError('Only JPG or PNG images are allowed');
             return;
         }
 
         if (file.size > maxSize) {
-            showError('El tamaño máximo permitido es 5MB');
+            showError('Maximum size allowed is 5MB');
             return;
         }
 
@@ -37,7 +37,7 @@ export default function CoverInput({ onValidFileSelect, currentFile, showError }
             />
             {currentFile && (
                 <p className="text-xs text-gray-600 mt-1">
-                    Portada seleccionada: <span className="font-medium">{currentFile.name}</span>
+                    Selected cover: <span className="font-medium">{currentFile.name}</span>
                 </p>
             )}
         </div>

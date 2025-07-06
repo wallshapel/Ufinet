@@ -15,11 +15,13 @@ function BooksInner() {
 
     return (
         <Layout>
-            <h2 className="text-2xl font-bold mb-4">Nuevo libro</h2>
+            <h2 className="text-2xl font-bold mb-4">New</h2>
             <BookForm onAdd={refreshBooks} />
-            <GenreFilter />
+            <div className="flex items-start gap-x-2 md:gap-x-8 mt-8">
+                <GenreFilter />
+                <DeleteByIsbn books={books} onDelete={onDelete} />
+            </div>
             <BookTable />
-            <DeleteByIsbn books={books} onDelete={onDelete} />
             <Pagination
                 page={page}
                 size={size}

@@ -9,9 +9,9 @@ export default function GenreFilter() {
     };
 
     return (
-        <div className="mb-4">
+        <div>
             <label htmlFor="genre" className="mr-2 font-medium text-sm">
-                Filtrar por género:
+                Filter by gender:
             </label>
             <select
                 id="genre"
@@ -19,7 +19,7 @@ export default function GenreFilter() {
                 onChange={handleGenreChange}
                 className="p-2 border border-gray-300 rounded text-sm"
             >
-                <option value="">Todos</option>
+                <option value="">All</option>
                 {genres.map((genre) => (
                     <option key={genre.id} value={genre.id.toString()}>
                         {genre.name}

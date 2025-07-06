@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Spinner from '../components/common/Spinner';
 import type { RegisterForm, FormErrors } from '../types/RegisterForm';
@@ -14,29 +14,31 @@ export default function Register() {
     const [errors, setErrors] = useState<FormErrors>({});
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const userNameRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        userNameRef.current?.focus();
+    }, []);
 
     const validate = (): FormErrors => {
         const newErrors: FormErrors = {};
 
-        if (!form.username.trim()) {
-            newErrors.username = 'El nombre de usuario es obligatorio.';
-        }
+        if (!form.username.trim())
+            newErrors.username = 'The user name is mandatory.';
 
-        if (!form.email.trim()) {
-            newErrors.email = 'El correo electrónico es obligatorio.';
-        } else if (!/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/.test(form.email)) {
-            newErrors.email = 'Correo electrónico no válido.';
-        }
+        if (!form.email.trim())
+            newErrors.email = 'The e-mail address is compulsory.';
+        else if (!/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/.test(form.email))
+            newErrors.email = 'Invalid e-mail address.';
 
-        if (!form.password) {
-            newErrors.password = 'La contraseña es obligatoria.';
-        } else if (form.password.length < 6) {
-            newErrors.password = 'Debe tener al menos 6 caracteres.';
-        } else if (!/[A-Za-z]/.test(form.password)) {
-            newErrors.password = 'Debe contener al menos una letra.';
-        } else if (!/\d/.test(form.password)) {
-            newErrors.password = 'Debe contener al menos un número.';
-        }
+        if (!form.password)
+            newErrors.password = 'The password is mandatory.';
+        else if (form.password.length < 6)
+            newErrors.password = 'Must be at least 6 characters long.';
+        else if (!/[A-Za-z]/.test(form.password))
+            newErrors.password = 'Must contain at least one letter.';
+        else if (!/\d/.test(form.password))
+            newErrors.password = 'Must contain at least one number.';
 
         return newErrors;
     };
@@ -64,7 +66,7 @@ export default function Register() {
             console.error(error);
             setLoading(false);
             setErrors({
-                general: error.message || 'No se pudo conectar con el servidor. Inténtalo más tarde.'
+                general: error.message || 'Could not connect to the server. Please try again later.'
             });
         }
     };
@@ -74,12 +76,13 @@ export default function Register() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-blue-50 text-blue-900">
             <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-sm">
-                <h2 className="text-xl font-bold mb-6 text-center">Registro</h2>
+                <h2 className="text-xl font-bold mb-6 text-center">Register</h2>
 
                 <input
+                    ref={userNameRef}
                     name="username"
                     type="text"
-                    placeholder="Nombre de usuario"
+                    placeholder="Username"
                     value={form.username}
                     onChange={handleChange}
                     className="w-full p-2 border border-gray-300 rounded"
@@ -89,7 +92,7 @@ export default function Register() {
                 <input
                     name="email"
                     type="email"
-                    placeholder="Correo electrónico"
+                    placeholder="E-mail address"
                     value={form.email}
                     onChange={handleChange}
                     className="w-full p-2 mt-4 border border-gray-300 rounded"
@@ -99,7 +102,7 @@ export default function Register() {
                 <input
                     name="password"
                     type="password"
-                    placeholder="Contraseña"
+                    placeholder="Password"
                     value={form.password}
                     onChange={handleChange}
                     className="w-full p-2 mt-4 border border-gray-300 rounded"
@@ -116,17 +119,17 @@ export default function Register() {
                         : 'bg-blue-700 hover:bg-blue-800 text-white'
                         }`}
                 >
-                    Crear cuenta
+                    Create an account
                 </button>
 
                 <div className="mt-4 text-center">
-                    <span className="text-sm text-gray-700">¿Ya tienes una cuenta?</span>{' '}
+                    <span className="text-sm text-gray-700">Already have an account?</span>{' '}
                     <button
                         type="button"
                         onClick={() => navigate('/')}
                         className="text-blue-700 hover:underline font-medium text-sm"
                     >
-                        Inicia sesión
+                        Login
                     </button>
                 </div>
             </form>

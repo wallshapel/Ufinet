@@ -1,4 +1,4 @@
-import { useEffect, useState, Suspense, lazy } from 'react';
+import { useEffect, useState, Suspense, lazy, useRef } from 'react';
 import { createBook } from '../../api/bookApi';
 import { fetchGenresByUser } from '../../api/genreApi';
 import { getUserIdFromToken } from '../../utils/decodeToken';
@@ -27,14 +27,16 @@ export default function BookForm({ onAdd }: Props) {
     const [loading, setLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [coverFile, setCoverFile] = useState<File | null>(null);
+    const isbnRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
+        isbnRef.current?.focus();
         const loadGenres = async () => {
             try {
                 const data = await fetchGenresByUser();
                 setGenres(data);
             } catch (error) {
-                console.error('Error al cargar géneros:', error);
+                console.error('Error loading genres:', error);
             }
         };
         loadGenres();
@@ -56,11 +58,11 @@ export default function BookForm({ onAdd }: Props) {
 
     const validate = () => {
         const newErrors: Errors = {};
-        if (!formData.isbn.trim()) newErrors.isbn = 'El ISBN es obligatorio.';
-        if (!formData.title.trim()) newErrors.title = 'El título es obligatorio.';
-        if (!formData.genreId) newErrors.genreId = 'El género es obligatorio.';
-        if (!formData.publishedDate) newErrors.publishedDate = 'La fecha es obligatoria.';
-        if (!formData.synopsis.trim()) newErrors.synopsis = 'La sinopsis es obligatoria.';
+        if (!formData.isbn.trim()) newErrors.isbn = 'The ISBN is required.';
+        if (!formData.title.trim()) newErrors.title = 'The title is required.';
+        if (!formData.genreId) newErrors. genreId = 'The genre is required.';
+        if (!formData.publishedDate) newErrors.publishedDate = 'The date is required.';
+        if (!formData.synopsis.trim()) newErrors.synopsis = 'The synopsis is required.';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -72,24 +74,8 @@ export default function BookForm({ onAdd }: Props) {
         const token = localStorage.getItem('token');
         const userId = token ? getUserIdFromToken(token) : null;
         if (userId === null) {
-            alert('Usuario no autenticado');
+            console.log('Unauthenticated user');
             return;
-        }
-
-        const newErrors: Record<string, string> = {};
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-
-        if (coverFile) {
-            if (!validTypes.includes(coverFile.type)) {
-                newErrors.coverFile = 'Solo se permiten imágenes JPG o PNG';
-            } else if (coverFile.size > 5 * 1024 * 1024) {
-                newErrors.coverFile = 'El tamaño máximo permitido es 5MB';
-            }
-
-            if (Object.keys(newErrors).length > 0) {
-                setErrors((prev) => ({ ...prev, ...newErrors }));
-                return; // ❌ Detenemos el flujo si la imagen es inválida
-            }
         }
 
         const bookToSend = {
@@ -111,10 +97,10 @@ export default function BookForm({ onAdd }: Props) {
                     await uploadBookCover(newBook.isbn, coverFile);
                     await refreshBooks();
                 } catch (error) {
-                    console.error('Error al subir la portada:', error);
+                    console.error('Error uploading the cover:', error);
                     setErrors((prev) => ({
                         ...prev,
-                        coverFile: 'Ocurrió un error al subir la imagen',
+                        coverFile: 'An error occurred while uploading the image',
                     }));
                     return;
                 }
@@ -136,13 +122,13 @@ export default function BookForm({ onAdd }: Props) {
             const data = error.response?.data;
 
             if (status === 409) {
-                setErrors({ isbn: data.message || 'Libro duplicado' });
+                setErrors({ isbn: data.message || 'Duplicate book' });
             } else if (status === 404) {
-                alert(data.message || 'Usuario no encontrado');
+                alert(data.message || 'User not found');
             } else if (status === 400 && typeof data === 'object') {
                 setErrors(data);
             } else {
-                console.error('Error desconocido al crear libro:', error);
+                console.error('Unknown error when creating book:', error);
             }
         } finally {
             setLoading(false);
@@ -155,7 +141,7 @@ export default function BookForm({ onAdd }: Props) {
         <>
             {success && (
                 <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded text-sm mb-4">
-                    Libro agregado correctamente.
+                    Book successfully added.
                 </div>
             )}
 
@@ -166,6 +152,7 @@ export default function BookForm({ onAdd }: Props) {
                     <label className="block text-sm font-medium text-gray-700 mb-1">ISBN</label>
                     <div className="flex items-center gap-2">
                         <input
+                            ref={isbnRef}
                             name="isbn"
                             type="text"
                             placeholder="ISBN"
@@ -178,14 +165,14 @@ export default function BookForm({ onAdd }: Props) {
                     {errors.isbn && <p className="text-red-600 text-sm mt-1">{errors.isbn}</p>}
                 </div>
 
-                {/* Título */}
+                {/* Title */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Título</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
                     <div className="flex items-center gap-2">
                         <input
                             name="title"
                             type="text"
-                            placeholder="Título"
+                            placeholder="Title"
                             value={formData.title}
                             onChange={handleChange}
                             className="p-2 border border-gray-300 rounded w-full"
@@ -195,10 +182,10 @@ export default function BookForm({ onAdd }: Props) {
                     {errors.title && <p className="text-red-600 text-sm mt-1">{errors.title}</p>}
                 </div>
 
-                {/* Género + botón */}
+                {/* Genre */}
                 <div className="flex gap-2 items-end">
                     <div className="w-full">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Género</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Genre</label>
                         <div className="flex items-center gap-2">
                             <select
                                 name="genreId"
@@ -206,7 +193,7 @@ export default function BookForm({ onAdd }: Props) {
                                 onChange={handleChange}
                                 className="p-2 border border-gray-300 rounded w-full"
                             >
-                                <option value="">Selecciona un género</option>
+                                <option value="">Select a genre</option>
                                 {genres.map((genre) => (
                                     <option key={genre.id} value={genre.id}>
                                         {genre.name}
@@ -227,9 +214,9 @@ export default function BookForm({ onAdd }: Props) {
                     </button>
                 </div>
 
-                {/* Fecha de publicación */}
+                {/* Publication date */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de publicación</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Publication date</label>
                     <div className="flex items-center gap-2">
                         <input
                             name="publishedDate"
@@ -245,16 +232,16 @@ export default function BookForm({ onAdd }: Props) {
                     )}
                 </div>
 
-                {/* Sinopsis */}
+                {/* Synopsis */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Sinopsis</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Synopsis</label>
                     <div className="flex items-center gap-2">
                         <textarea
                             name="synopsis"
-                            placeholder="Sinopsis"
+                            placeholder="Synopsis"
                             value={formData.synopsis}
                             onChange={handleChange}
-                            className="p-2 border border-gray-300 rounded resize-none w-full"
+                            className="p-2 border border-gray-300 rounded resize-y min-h-[120px] max-h-[300px] w-full"
                         />
                         <span className="text-red-600 text-lg">*</span>
                     </div>
@@ -263,9 +250,9 @@ export default function BookForm({ onAdd }: Props) {
                     )}
                 </div>
 
-                {/* Portada */}
+                {/* Cover */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Portada (opcional)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Cover</label>
                     <CoverInput
                         currentFile={coverFile || undefined}
                         onValidFileSelect={(file) => setCoverFile(file)}
@@ -281,7 +268,7 @@ export default function BookForm({ onAdd }: Props) {
                     )}
                 </div>
 
-                {/* Botón de envío */}
+                {/* Submit button */}
                 <button
                     type="submit"
                     disabled={loading}
@@ -309,12 +296,12 @@ export default function BookForm({ onAdd }: Props) {
                             />
                         </svg>
                     )}
-                    <span className="h-4 flex items-center">{loading ? 'Guardando...' : 'Guardar'}</span>
+                    <span className="h-4 flex items-center">{loading ? 'Saving...' : 'Save'}</span>
                 </button>
             </form>
 
             {showModal && (
-                <Suspense fallback={<div>Cargando...</div>}>
+                <Suspense fallback={<div>Loading...</div>}>
                     <LazyGenreModal
                         onClose={() => setShowModal(false)}
                         onGenreCreated={async (newGenre) => {

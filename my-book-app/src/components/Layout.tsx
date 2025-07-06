@@ -26,14 +26,14 @@ export default function Layout({ children }: Props) {
                 <div className="flex items-center gap-4">
                     {username && (
                         <span className="text-sm whitespace-nowrap truncate max-w-[150px] lg:max-w-xs">
-                            Bienvenido, {username}
+                            Welcome, {username}
                         </span>
                     )}
                     <button
                         onClick={handleLogout}
                         className="bg-white text-blue-700 px-3 py-1 rounded font-medium hover:bg-blue-100"
                     >
-                        Cerrar sesión
+                        Log out
                     </button>
                 </div>
             </header>

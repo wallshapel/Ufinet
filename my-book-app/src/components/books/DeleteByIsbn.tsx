@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { Book } from '../../types/books/Book';
 import Spinner from '../common/Spinner';
 import type { Props } from '../../types/DeleteByIsbnProps';
@@ -10,6 +10,7 @@ export default function DeleteByIsbn({ onDelete }: Props) {
     const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null);
     const [inputError, setInputError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const isbnInputRef = useRef<HTMLInputElement>(null);
 
     const showFeedback = (type: 'error' | 'success', message: string) => {
         setFeedback({ type, message });
@@ -20,12 +21,12 @@ export default function DeleteByIsbn({ onDelete }: Props) {
         const isbn = isbnInput.trim();
 
         if (!isbn) {
-            setInputError('El ISBN no puede estar vacío.');
+            setInputError('The ISBN must not be empty.');
             return;
         }
 
         if (isbn.length < 10) {
-            setInputError('El ISBN debe tener al menos 10 caracteres.');
+            setInputError('The ISBN must be at least 10 characters long.');
             return;
         }
 
@@ -35,14 +36,14 @@ export default function DeleteByIsbn({ onDelete }: Props) {
         try {
             const book = await fetchBookByIsbnAndUserId(isbn);
             setBookFound(book);
-            showFeedback('success', 'Libro encontrado. Puedes eliminarlo o cancelar.');
+            showFeedback('success', 'Book found. You can delete it or cancel it.');
         } catch (error: any) {
             setBookFound(null);
             if (error.response?.status === 404) {
-                showFeedback('error', 'No se encontró ningún libro con ese ISBN para este usuario.');
+                showFeedback('error', 'No books with this ISBN were found for this user.');
             } else {
-                console.error('Error al buscar libro:', error);
-                showFeedback('error', 'Ocurrió un error al buscar el libro.');
+                console.error('Error when searching for book:', error);
+                showFeedback('error', 'An error occurred while searching for the book.');
             }
         } finally {
             setLoading(false);
@@ -55,14 +56,15 @@ export default function DeleteByIsbn({ onDelete }: Props) {
         setLoading(true);
         try {
             await onDelete(bookFound.isbn);
-            showFeedback('success', `Libro "${bookFound.title}" eliminado correctamente.`);
+            showFeedback('success', `Book "${bookFound.title}" successfully deleted.`);
             setBookFound(null);
             setIsbnInput('');
         } catch (error: any) {
-            console.error('Error al eliminar libro:', error);
-            showFeedback('error', error.message || 'No se pudo eliminar el libro');
+            console.error('Error deleting book:', error);
+            showFeedback('error', error.message || 'Book could not be deleted');
         } finally {
             setLoading(false);
+            isbnInputRef.current?.focus();
         }
     };
 
@@ -71,36 +73,49 @@ export default function DeleteByIsbn({ onDelete }: Props) {
         setBookFound(null);
         setFeedback(null);
         setInputError(null);
+        isbnInputRef.current?.focus();
     };
 
     if (loading) return <Spinner />;
 
     return (
-        <div className="mt-8 max-w-md">
-            <h3 className="text-lg font-semibold mb-2">Buscar libro por ISBN</h3>
+        <div className="max-w-md">
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSearch();
+                }}
+                className="mb-4"
+            >               
 
-            <div className="flex items-center gap-2 mb-2">
-                <input
-                    type="text"
-                    placeholder="ISBN del libro"
-                    value={isbnInput}
-                    onChange={(e) => {
-                        setIsbnInput(e.target.value);
-                        if (inputError) setInputError(null);
-                    }}
-                    className="flex-1 p-2 border border-gray-300 rounded"
-                />
-                <button
-                    onClick={handleSearch}
-                    disabled={!isbnInput.trim()}
-                    className={`px-4 py-2 rounded text-white ${!isbnInput.trim()
-                        ? 'bg-blue-300 cursor-not-allowed'
-                        : 'bg-blue-700 hover:bg-blue-800'
-                        }`}
-                >
-                    Buscar
-                </button>
-            </div>
+                <div className="flex items-center gap-2 mb-2">
+                    <label htmlFor="isbn" className="block font-medium text-sm mb-1">
+                        Search for books by ISBN:
+                    </label>
+                    <input
+                        ref={isbnInputRef}
+                        id="isbn"
+                        type="text"
+                        placeholder="ISBN of the book"
+                        value={isbnInput}
+                        onChange={(e) => {
+                            setIsbnInput(e.target.value);
+                            if (inputError) setInputError(null);
+                        }}
+                        className="flex-1 p-2 border border-gray-300 rounded"
+                    />
+                    <button
+                        type="submit"
+                        disabled={!isbnInput.trim()}
+                        className={`px-4 py-2 rounded text-white ${!isbnInput.trim()
+                            ? 'bg-blue-300 cursor-not-allowed'
+                            : 'bg-blue-700 hover:bg-blue-800'
+                            }`}
+                    >
+                        Search
+                    </button>
+                </div>
+            </form>
 
             {inputError && (
                 <p className="text-red-600 text-sm mb-2">{inputError}</p>
@@ -119,23 +134,23 @@ export default function DeleteByIsbn({ onDelete }: Props) {
 
             {bookFound && (
                 <div className="border border-blue-200 rounded p-4 mb-4 bg-blue-50">
-                    <p><strong>Título:</strong> {bookFound.title}</p>
-                    <p><strong>Género:</strong> {bookFound.genre}</p>
-                    <p><strong>Publicado:</strong> {bookFound.publishedDate}</p>
-                    <p><strong>Sinopsis:</strong> {bookFound.synopsis}</p>
+                    <p><strong>Title:</strong> {bookFound.title}</p>
+                    <p><strong>Genre:</strong> {bookFound.genre}</p>
+                    <p><strong>Published:</strong> {bookFound.publishedDate}</p>
+                    <p><strong>Synopsis:</strong> {bookFound.synopsis}</p>
 
                     <div className="flex gap-2 mt-4">
                         <button
                             onClick={handleDelete}
                             className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                         >
-                            Eliminar
+                            Delete
                         </button>
                         <button
                             onClick={handleCancel}
                             className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
                         >
-                            Cancelar
+                            Cancel
                         </button>
                     </div>
                 </div>

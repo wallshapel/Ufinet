@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { jwtDecode } from 'jwt-decode';
+import type { JwtPayload } from '../types/JwtPayload';
 import type { AuthContextType } from '../types/contexts/AuthContextType';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -9,30 +11,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const storedToken = localStorage.getItem('token');
-        if (storedToken) {
-            const payloadBase64 = storedToken.split('.')[1];
+        const initializeAuth = () => {
+            const storedToken = localStorage.getItem('token');
+
+            if (!storedToken) return;
+
             try {
-                const payload = JSON.parse(atob(payloadBase64));
+                const payload = jwtDecode<JwtPayload>(storedToken);
                 const exp = payload.exp * 1000;
+
                 if (Date.now() > exp) {
-                    logout();
+                    logout(); // token expirado
                 } else {
                     setToken(storedToken);
                 }
-            } catch (e) {
-                logout();
+            } catch (error) {
+                logout(); // token inválido o malformado
             }
-        }
+        };
+
+        initializeAuth();
         setIsLoading(false);
     }, []);
 
     useEffect(() => {
         const handleStorageChange = (event: StorageEvent) => {
-            if (event.key === 'token' && event.newValue === null) {
-                setToken(null);
+            if (event.key === 'token') {
+                const newToken = event.newValue;
+
+                if (!newToken) {
+                    setToken(null);
+                } else {
+                    try {
+                        const payload = jwtDecode<JwtPayload>(newToken);
+                        const exp = payload.exp * 1000;
+                        if (Date.now() > exp) {
+                            logout();
+                        } else {
+                            setToken(newToken);
+                        }
+                    } catch {
+                        logout();
+                    }
+                }
             }
         };
+
         window.addEventListener('storage', handleStorageChange);
         return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
@@ -54,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 }
 
-export function useAuth() { // Evita usar el Contexto sin el proveedor AuthContext
+export function useAuth() {
     const context = useContext(AuthContext);
     if (!context) throw new Error('useAuth debe usarse dentro de AuthProvider');
     return context;

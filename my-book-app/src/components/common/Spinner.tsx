@@ -5,7 +5,7 @@ export default function Spinner() {
         <div className="fixed inset-0 flex items-center justify-center z-50">
             <img
                 src={spinner}
-                alt="Cargando..."
+                alt="Loading..."
                 className="w-12 h-12 animate-spin"
             />
         </div>

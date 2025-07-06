@@ -5,7 +5,7 @@ export default function Pagination({ page, totalPages, onPageChange, size, onSiz
         <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4 mt-6 px-2">
             <div className="flex items-center gap-2 mb-2 sm:mb-0">
                 <label htmlFor="size" className="text-sm text-gray-700 whitespace-nowrap">
-                    Mostrar:
+                    Show:
                 </label>
                 <select
                     id="size"
@@ -28,11 +28,11 @@ export default function Pagination({ page, totalPages, onPageChange, size, onSiz
                         : 'bg-blue-700 hover:bg-blue-800'
                         }`}
                 >
-                    Anterior
+                    Back
                 </button>
 
                 <span className="text-sm text-gray-700 whitespace-nowrap">
-                    Página {page + 1} de {totalPages}
+                    Page {page + 1} of {totalPages}
                 </span>
 
                 <button
@@ -43,7 +43,7 @@ export default function Pagination({ page, totalPages, onPageChange, size, onSiz
                         : 'bg-blue-700 hover:bg-blue-800'
                         }`}
                 >
-                    Siguiente
+                    Next
                 </button>
             </div>
         </div>

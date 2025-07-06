@@ -1,8 +1,8 @@
 import axios from 'axios';
-import type { RegisterPayload } from '../types/RegisterPayload';
 import BASE_URL from "./apiConfig";
+import type { RegisterForm } from '../types/RegisterForm';
 
-export async function registerUser(payload: RegisterPayload): Promise<void> {
+export async function registerUser(payload: RegisterForm): Promise<void> {
     try {
         await axios.post(`${BASE_URL}/users/register`, payload);
     } catch (error: any) {
