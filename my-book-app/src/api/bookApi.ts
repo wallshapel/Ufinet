@@ -38,13 +38,12 @@ export async function deleteBookByIsbn(isbn: string): Promise<void> {
     const message =
       error.response?.data?.message || error.response?.data?.detail;
 
-    if (error.response?.status === 404) {
+    if (error.response?.status === 404)
       throw new Error(message || "Libro o usuario no encontrado");
-    } else if (error.response?.status === 400) {
+    else if (error.response?.status === 400)
       throw new Error(message || "Petición incorrecta");
-    } else {
+    else
       throw new Error("Error al intentar eliminar el libro");
-    }
   }
 }
 
@@ -74,9 +73,8 @@ export async function updateBook(
 
     return response.data;
   } catch (error: any) {
-    if (error.response?.data && typeof error.response.data === "object") {
+    if (error.response?.data && typeof error.response.data === "object")
       throw error.response.data;
-    }
 
     throw new Error("Error al actualizar el libro");
   }

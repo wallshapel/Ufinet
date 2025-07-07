@@ -6,9 +6,9 @@ export async function registerUser(payload: RegisterForm): Promise<void> {
   try {
     await axios.post(`${BASE_URL}/users/register`, payload);
   } catch (error: any) {
-    if (error.response?.data?.message) {
+    if (error.response?.data?.message)
       throw new Error(error.response.data.message);
-    } else {
+    else {
       console.error(error);
       throw new Error(
         "Fully responsive App. Fully formatted App"
