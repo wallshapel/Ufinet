@@ -9,15 +9,15 @@ export default function GenreFilter() {
     };
 
     return (
-        <div>
-            <label htmlFor="genre" className="mr-2 font-medium text-sm">
-                Filter by gender:
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+            <label htmlFor="genre" className="font-medium text-sm whitespace-nowrap">
+                Filter by genre:
             </label>
             <select
                 id="genre"
                 value={selectedGenre}
                 onChange={handleGenreChange}
-                className="p-2 border border-gray-300 rounded text-sm"
+                className="p-2 border border-gray-300 rounded text-sm w-full sm:w-48"
             >
                 <option value="">All</option>
                 {genres.map((genre) => (

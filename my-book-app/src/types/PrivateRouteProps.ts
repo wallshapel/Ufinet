@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
+import type { ReactElement } from "react";
 
 export type Props = {
-    children: ReactElement;
+  children: ReactElement;
 };

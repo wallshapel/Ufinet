@@ -1,45 +1,56 @@
-import React from 'react';
+import React, { useRef } from "react";
+import type { CoverInput } from "../../types/books/CoverInput";
 
-type Props = {
-    onValidFileSelect: (file: File) => void;
-    currentFile?: File;
-    showError: (message: string) => void;
-};
+export default function CoverInput({
+  onValidFileSelect,
+  currentFile,
+  showError,
+}: CoverInput) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-export default function CoverInput({ onValidFileSelect, currentFile, showError }: Props) {
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  };
 
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-        const maxSize = 5 * 1024 * 1024; // 5MB
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-        if (!validTypes.includes(file.type)) {
-            showError('Only JPG or PNG images are allowed');
-            return;
-        }
+    const validTypes = ["image/jpeg", "image/jpg", "image/png"];
+    const maxSize = 5 * 1024 * 1024;
 
-        if (file.size > maxSize) {
-            showError('Maximum size allowed is 5MB');
-            return;
-        }
+    if (!validTypes.includes(file.type)) {
+      showError("Only JPG or PNG images are allowed");
+      return;
+    }
 
-        onValidFileSelect(file);
-    };
+    if (file.size > maxSize) {
+      showError("Maximum size allowed is 5MB");
+      return;
+    }
 
-    return (
-        <div>
-            <input
-                type="file"
-                accept="image/*"
-                onChange={handleChange}
-                className="block w-full text-sm text-gray-700 file:mr-4 file:py-1 file:px-2 file:border file:border-gray-300 file:rounded file:text-sm file:bg-white file:text-gray-700 hover:file:bg-gray-100"
-            />
-            {currentFile && (
-                <p className="text-xs text-gray-600 mt-1">
-                    Selected cover: <span className="font-medium">{currentFile.name}</span>
-                </p>
-            )}
-        </div>
-    );
+    onValidFileSelect(file);
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-3 w-full">
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+      />
+      <button
+        type="button"
+        onClick={handleButtonClick}
+        className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        {currentFile ? "Change cover" : "Select cover"}
+      </button>
+      <span className="text-sm text-gray-700 italic truncate max-w-full sm:max-w-[200px]">
+        {currentFile?.name || ""}
+      </span>
+    </div>
+  );
 }

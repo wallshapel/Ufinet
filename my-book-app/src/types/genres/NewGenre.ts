@@ -1,4 +1,4 @@
 export interface NewGenre {
-    name: string;
-    userId: number;
+  name: string;
+  userId: number;
 }

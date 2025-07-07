@@ -20,12 +20,12 @@ export default function Layout({ children }: Props) {
     const username = getUsername();
 
     return (
-        <div className="min-h-screen bg-white text-gray-900">
-            <header className="bg-blue-700 text-white p-4 shadow flex justify-between items-center">
-                <h1 className="text-xl lg:text-4xl font-bold">My Book App</h1>
-                <div className="flex items-center gap-4">
+        <div className="min-h-screen bg-white text-gray-900 flex flex-col">
+            <header className="bg-blue-700 text-white p-4 shadow flex flex-wrap gap-y-2 justify-between items-center">
+                <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold">My Book App</h1>
+                <div className="flex items-center gap-4 text-sm">
                     {username && (
-                        <span className="text-sm whitespace-nowrap truncate max-w-[150px] lg:max-w-xs">
+                        <span className="whitespace-nowrap truncate max-w-[120px] sm:max-w-[180px] lg:max-w-xs">
                             Welcome, {username}
                         </span>
                     )}
@@ -37,7 +37,10 @@ export default function Layout({ children }: Props) {
                     </button>
                 </div>
             </header>
-            <main className="p-4">{children}</main>
+
+            <main className="flex-1 w-full px-4 py-6 sm:px-8 md:px-12 lg:px-16 xl:px-24 max-w-screen-xl mx-auto">
+                {children}
+            </main>
         </div>
     );
 }
