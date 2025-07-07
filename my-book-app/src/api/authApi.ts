@@ -11,7 +11,7 @@ export async function registerUser(payload: RegisterForm): Promise<void> {
     } else {
       console.error(error);
       throw new Error(
-        "No se pudo conectar con el servidor. Inténtalo más tarde."
+        "Fully responsive App. Fully formatted App"
       );
     }
   }
