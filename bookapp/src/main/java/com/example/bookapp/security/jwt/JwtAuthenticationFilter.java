@@ -1,5 +1,6 @@
 package com.example.bookapp.security.jwt;
 
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,8 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final String JSON_CONTENT_TYPE = "application/json";
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
@@ -41,15 +44,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"El token es requerido\"}");
+            response.setContentType(JSON_CONTENT_TYPE);
+            response.getWriter().write("{\"error\": \"Token is required\"}");
             return;
         }
 
         if (!authHeader.startsWith("Bearer ")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Token inválido o mal formado\"}");
+            response.setContentType(JSON_CONTENT_TYPE);
+            response.getWriter().write("{\"error\": \"Invalid or malformed token\"}");
             return;
         }
 
@@ -59,23 +62,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             userEmail = jwtService.extractUsername(jwt);
         } catch (io.jsonwebtoken.ExpiredJwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"token expirado\"}");
+            response.setContentType(JSON_CONTENT_TYPE);
+            response.getWriter().write("{\"error\": \"Token has expired\"}");
             return;
         } catch (io.jsonwebtoken.MalformedJwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"token mal formado\"}");
+            response.setContentType(JSON_CONTENT_TYPE);
+            response.getWriter().write("{\"error\": \"Malformed token\"}");
             return;
-        } catch (io.jsonwebtoken.SignatureException e) {
+        } catch (SignatureException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"La firma del token es inválida\"}");
+            response.setContentType(JSON_CONTENT_TYPE);
+            response.getWriter().write("{\"error\": \"Invalid token signature\"}");
             return;
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Token inválido o error desconocido\"}");
+            response.setContentType(JSON_CONTENT_TYPE);
+            response.getWriter().write("{\"error\": \"Invalid token or unknown error\"}");
             return;
         }
 

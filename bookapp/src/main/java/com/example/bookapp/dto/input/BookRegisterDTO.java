@@ -10,30 +10,30 @@ import java.time.LocalDate;
 @Setter
 public class BookRegisterDTO {
 
-    @NotNull(message = "El ISBN es obligatorio")
-    @NotBlank(message = "El ISBN no puede estar vacío")
-    @Size(min = 10, max = 13, message = "El ISBN debe tener entre 10 y 13 caracteres")
+    @NotNull(message = "ISBN is required")
+    @NotBlank(message = "ISBN cannot be blank")
+    @Size(min = 10, max = 13, message = "ISBN must be between 10 and 13 characters long")
     private String isbn;
 
-    @NotNull(message = "El título es obligatorio")
-    @NotBlank(message = "El título no puede estar vacío")
-    @Size(min = 2, max = 100, message = "El título debe tener entre 2 y 100 caracteres")
+    @NotNull(message = "Title is required")
+    @NotBlank(message = "Title cannot be blank")
+    @Size(min = 2, max = 100, message = "Title must be between 2 and 100 characters long")
     private String title;
 
-    @NotNull(message = "El ID del género es obligatorio")
-    @Min(value = 1, message = "El ID del género debe ser mayor o igual a 1")
+    @NotNull(message = "Genre ID is required")
+    @Min(value = 1, message = "Genre ID must be greater than or equal to 1")
     private Long genreId;
 
-    @NotNull(message = "La fecha de publicación es obligatoria")
-    @PastOrPresent(message = "La fecha de publicación no puede ser en el futuro")
+    @NotNull(message = "Published date is required")
+    @PastOrPresent(message = "Published date cannot be in the future")
     private LocalDate publishedDate;
 
-    @NotNull(message = "La sinopsis es obligatoria")
-    @NotBlank(message = "La sinopsis no puede estar vacía ni ser nula")
-    @Size(min = 10, max = 500, message = "La sinopsis debe tener entre 10 y 500 caracteres")
+    @NotNull(message = "Synopsis is required")
+    @NotBlank(message = "Synopsis cannot be blank or null")
+    @Size(min = 10, max = 500, message = "Synopsis must be between 10 and 500 characters long")
     private String synopsis;
 
-    @NotNull(message = "El ID del usuario es obligatorio")
-    @Min(value = 1, message = "El ID del usuario debe ser mayor o igual a 1")
+    @NotNull(message = "User ID is required")
+    @Min(value = 1, message = "User ID must be greater than or equal to 1")
     private Long userId;
 }

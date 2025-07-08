@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +33,8 @@ import java.nio.file.Paths;
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
+
+    private static final String BOOK_NOT_FOUND_FOR_USER = "Book not found for the user";
 
     private final BookRepository bookRepository;
     private final GenreRepository genreRepository;
@@ -45,7 +46,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public BookResponseDTO register(BookRegisterDTO dto) {
         if (bookRepository.existsByIsbn(dto.getIsbn())) {
-            throw new AlreadyExistException("Ya existe un libro con ese ISBN");
+            throw new AlreadyExistException("A book with this ISBN already exists");
         }
 
         Genre genre = getGenreOrThrow(dto.getGenreId());
@@ -63,7 +64,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public BookResponseDTO update(BookUpdateDTO dto) {
         Book book = bookRepository.findByIsbnAndUserId(dto.getIsbn(), dto.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado para el usuario"));
+                .orElseThrow(() -> new ResourceNotFoundException(BOOK_NOT_FOUND_FOR_USER));
 
         if (dto.getTitle() != null) book.setTitle(dto.getTitle());
         if (dto.getPublishedDate() != null) book.setPublishedDate(dto.getPublishedDate());
@@ -83,7 +84,7 @@ public class BookServiceImpl implements BookService {
     public void deleteByIsbn(String isbn, Long userId) {
         getUserOrThrow(userId);
         Book book = bookRepository.findByIsbnAndUserId(isbn, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado para el usuario"));
+                .orElseThrow(() -> new ResourceNotFoundException(BOOK_NOT_FOUND_FOR_USER));
 
         bookRepository.delete(book);
     }
@@ -109,7 +110,7 @@ public class BookServiceImpl implements BookService {
     public BookResponseDTO findByIsbnAndUserId(String isbn, Long userId) {
         getUserOrThrow(userId);
         Book book = bookRepository.findByIsbnAndUserId(isbn, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado para el usuario"));
+                .orElseThrow(() -> new ResourceNotFoundException(BOOK_NOT_FOUND_FOR_USER));
         return toBookResponseDTO(book);
     }
 
@@ -117,17 +118,17 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public BookResponseDTO updateCoverImage(String isbn, Long userId, MultipartFile file) {
         Book book = bookRepository.findByIsbnAndUserId(isbn, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado para el usuario"));
+                .orElseThrow(() -> new ResourceNotFoundException(BOOK_NOT_FOUND_FOR_USER));
 
-        if (file.isEmpty()) throw new IllegalArgumentException("El archivo está vacío");
+        if (file.isEmpty()) throw new IllegalArgumentException("File is empty");
 
         String contentType = file.getContentType();
         if (contentType == null || !contentType.matches("image/(jpeg|png|jpg)")) {
-            throw new IllegalArgumentException("Solo se permiten imágenes JPG o PNG");
+            throw new IllegalArgumentException("Only JPG or PNG images are allowed");
         }
 
         if (file.getSize() > 5 * 1024 * 1024) {
-            throw new IllegalArgumentException("El tamaño máximo permitido es 5MB");
+            throw new IllegalArgumentException("Maximum allowed file size is 5MB");
         }
 
         String imagePath = imageStorageService.storeCoverImage(file, isbn);
@@ -144,38 +145,29 @@ public class BookServiceImpl implements BookService {
 
         String[] parts = normalizedPath.split("/");
         if (parts.length < 2) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ruta de portada inválida");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid cover image path");
         }
-
-        String isbn = parts[0];
-
-        // Aseguramos que el usuario exista (y de paso aplicamos la validación centralizada)
-        User user = getUserOrThrow(userId);
-
-        // Validar que el libro pertenece al usuario autenticado
-        Book book = bookRepository.findByIsbnAndUserId(isbn, user.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "No autorizado a ver esta imagen"));
 
         Path imagePath = Paths.get("uploads", "books", normalizedPath);
         if (!Files.exists(imagePath) || !Files.isReadable(imagePath)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Imagen no encontrada");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Image not found");
         }
 
         try {
             return new UrlResource(imagePath.toUri());
         } catch (MalformedURLException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al acceder a la imagen");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error accessing the image");
         }
     }
 
     private User getUserOrThrow(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     private Genre getGenreOrThrow(Long genreId) {
         return genreRepository.findById(genreId)
-                .orElseThrow(() -> new ResourceNotFoundException("Género no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Genre not found"));
     }
 
     private BookResponseDTO toBookResponseDTO(Book book) {

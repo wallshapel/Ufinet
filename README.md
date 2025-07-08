@@ -69,6 +69,8 @@ En el repositorio se incluye un archivo `.sql` que contiene:
     
 -   Datos de ejemplo, incluyendo un usuario con algunos libros cargados.
     
+    -   **Usuario:** `abel@example.com`
+
     -   **Contraseña del usuario en texto plano:** `abel123` (ya está encriptada en el archivo).
         
 

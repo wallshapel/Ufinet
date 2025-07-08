@@ -10,10 +10,10 @@ import lombok.Setter;
 @Setter
 public class GenreRegisterDTO {
 
-    @NotBlank(message = "El nombre del género no puede estar vacío")
-    @Size(min = 3, max = 30, message = "El nombre del género debe tener entre 3 y 30 caracteres")
+    @NotBlank(message = "Genre name cannot be blank")
+    @Size(min = 3, max = 30, message = "Genre name must be between 3 and 30 characters long")
     private String name;
 
-    @Min(value = 1, message = "El ID del usuario debe ser mayor o igual a 1")
+    @Min(value = 1, message = "User ID must be greater than or equal to 1")
     private Long userId;
 }

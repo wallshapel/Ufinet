@@ -1,5 +1,6 @@
 package com.example.bookapp.services.impl;
 
+import com.example.bookapp.exceptions.ImageStorageException;
 import com.example.bookapp.services.ImageStorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,47 +17,49 @@ public class ImageStorageServiceImpl implements ImageStorageService {
 
     @Override
     public String storeCoverImage(MultipartFile file, String isbn) {
-        if (file.isEmpty()) throw new IllegalArgumentException("El archivo está vacío");
+        if (file.isEmpty()) throw new IllegalArgumentException("File is empty");
 
         String contentType = file.getContentType();
         if (contentType == null || !contentType.matches("image/(jpeg|png|jpg)")) {
-            throw new IllegalArgumentException("Solo se permiten imágenes JPG o PNG");
+            throw new IllegalArgumentException("Only JPG or PNG images are allowed");
         }
 
         if (file.getSize() > 5 * 1024 * 1024) {
-            throw new IllegalArgumentException("El tamaño máximo permitido es 5MB");
+            throw new IllegalArgumentException("Maximum allowed file size is 5MB");
         }
 
         try {
             Path uploadDir = Paths.get(BASE_UPLOAD_DIR + isbn).toAbsolutePath();
 
-            // 🧹 Eliminar archivos existentes si el directorio ya existe
+            // 🧹 Delete existing files if directory already exists
             if (Files.exists(uploadDir)) {
-                Files.list(uploadDir).forEach(path -> {
-                    try {
-                        Files.delete(path);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Error al eliminar archivo anterior de portada: " + path, e);
-                    }
-                });
+                try (var paths = Files.list(uploadDir)) {
+                    paths.forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            throw new ImageStorageException("Error deleting previous cover image: " + path, e);
+                        }
+                    });
+                }
             }
 
-            // 🏗️ Crear directorio si no existe (o recrear si se vació)
+            // 🏗️ Create directory if it doesn't exist (or recreate if emptied)
             Files.createDirectories(uploadDir);
 
-            // 📎 Definir extensión y nombre final
+            // 📎 Define extension and final name
             String extension = contentType.contains("png") ? ".png" : ".jpg";
             String fileName = "cover" + extension;
             Path filePath = uploadDir.resolve(fileName);
 
-            // 💾 Guardar nuevo archivo
+            // 💾 Save new file
             file.transferTo(filePath.toFile());
 
-            // 🔁 Devolver ruta relativa
+            // 🔁 Return relative path
             return isbn + "/" + fileName;
 
         } catch (IOException e) {
-            throw new RuntimeException("Error al guardar la imagen", e);
+            throw new ImageStorageException("Error saving the image", e);
         }
     }
 }

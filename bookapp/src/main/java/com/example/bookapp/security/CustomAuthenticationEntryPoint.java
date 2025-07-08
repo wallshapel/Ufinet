@@ -20,6 +20,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
-        response.getWriter().write("{\"error\": \"email y/o contraseña inválidos\"}");
+        response.getWriter().write("{\"error\": \"Invalid email and/or password\"}");
     }
 }

@@ -10,18 +10,19 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserRegisterDTO {
-    @NotBlank(message = "El nombre de usuario no puede estar vacío ni ser nulo")
-    @Size(min = 2, max = 50, message = "El nombre de usuario debe tener entre 2 y 50 caracteres")
+
+    @NotBlank(message = "Username cannot be blank or null")
+    @Size(min = 2, max = 50, message = "Username must be between 2 and 50 characters long")
     private String username;
 
-    @NotBlank(message = "El email no puede estar vacío ni ser nulo")
-    @Email(message = "El email debe ser válido")
+    @NotBlank(message = "Email cannot be blank or null")
+    @Email(message = "Email must be valid")
     private String email;
 
-    @NotBlank(message = "La contraseña no puede estar vacío ni ser nula")
+    @NotBlank(message = "Password cannot be blank or null")
     @Pattern(
             regexp = "^(?=.*[A-Za-z])(?=.*\\d).{6,}$",
-            message = "La contraseña debe tener al menos 6 caracteres y contener al menos una letra y un número"
+            message = "Password must be at least 6 characters long and contain at least one letter and one number"
     )
     private String password;
 }

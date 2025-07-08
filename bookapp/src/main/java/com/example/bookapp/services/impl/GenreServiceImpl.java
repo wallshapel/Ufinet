@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,18 +45,17 @@ public class GenreServiceImpl implements GenreService {
         List<Genre> genres = genreRepository.findByUserId(userId);
         return genres.stream()
                 .map(genre -> mapper.toDto(genre, GenreResponseDTO.class))
-                .collect(Collectors.toList());
+                .toList();
     }
-
 
     private User getUserOrThrow(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     private void validateUniqueGenreName(String name, Long userId) {
         if (genreRepository.existsByNameIgnoreCaseAndUserId(name, userId)) {
-            throw new AlreadyExistException("Ya existe un género con ese nombre para este usuario");
+            throw new AlreadyExistException("A genre with this name already exists for this user");
         }
     }
 }

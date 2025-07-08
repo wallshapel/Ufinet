@@ -1,6 +1,5 @@
 package com.example.bookapp.security.jwt;
 
-import com.example.bookapp.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -39,7 +37,7 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 3)) // 60 min
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 3)) // 3 min
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

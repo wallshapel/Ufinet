@@ -10,24 +10,24 @@ import java.time.LocalDate;
 @Setter
 public class BookUpdateDTO {
 
-    @NotNull(message = "El ISBN es obligatorio")
-    @NotBlank(message = "El ISBN no puede estar vacío")
-    @Size(min = 10, max = 13, message = "El ISBN debe tener entre 10 y 13 caracteres")
+    @NotNull(message = "ISBN is required")
+    @NotBlank(message = "ISBN cannot be blank")
+    @Size(min = 10, max = 13, message = "ISBN must be between 10 and 13 characters long")
     private String isbn;
 
-    @Size(min = 2, max = 100, message = "El título debe tener entre 2 y 100 caracteres")
+    @Size(min = 2, max = 100, message = "Title must be between 2 and 100 characters long")
     private String title;
 
-    @Min(value = 1, message = "El ID del género debe ser mayor o igual a 1")
+    @Min(value = 1, message = "Genre ID must be greater than or equal to 1")
     private Long genreId;
 
-    @PastOrPresent(message = "La fecha de publicación no puede ser en el futuro")
+    @PastOrPresent(message = "Published date cannot be in the future")
     private LocalDate publishedDate;
 
-    @Size(min = 10, max = 500, message = "La sinopsis debe tener entre 10 y 500 caracteres")
+    @Size(min = 10, max = 500, message = "Synopsis must be between 10 and 500 characters long")
     private String synopsis;
 
-    @NotNull(message = "El ID del usuario es obligatorio")
-    @Min(value = 1, message = "El ID del usuario debe ser mayor o igual a 1")
+    @NotNull(message = "User ID is required")
+    @Min(value = 1, message = "User ID must be greater than or equal to 1")
     private Long userId;
 }
