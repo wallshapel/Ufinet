@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Synopsis } from "../../../types/books/Synopsis";
+import type { Synopsis } from "../../types/books/Synopsis";
 
 export default function ResponsiveSynopsis({
   text,

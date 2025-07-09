@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { createGenre } from "../../../api/genreApi";
-import { getUserIdFromToken } from "../../../utils/decodeToken";
-import Spinner from "../../common/Spinner";
+import { createGenre } from "../../api/genreApi";
+import { getUserIdFromToken } from "../../utils/decodeToken";
+import Spinner from "../common/Spinner";
 
 interface Props {
   onClose: () => void;

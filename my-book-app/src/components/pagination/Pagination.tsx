@@ -1,4 +1,4 @@
-import type { Props } from "../../types/paginations/PaginationProps";
+import type { Props } from "../../../types/paginations/PaginationProps";
 
 export default function Pagination({
   page,
@@ -9,7 +9,7 @@ export default function Pagination({
 }: Props) {
   return (
     <div className="flex flex-col sm:flex-row justify-between sm:justify-center items-center gap-3 sm:gap-6 mt-6 px-4 sm:px-8 w-full flex-wrap">
-      {/* Selector de tamaño */}
+      {/* Size selector */}
       <div className="flex items-center gap-2">
         <label
           htmlFor="size"
@@ -29,7 +29,7 @@ export default function Pagination({
         </select>
       </div>
 
-      {/* Navegación de página */}
+      {/* Page navigation */}
       <div className="flex items-center gap-2">
         <button
           onClick={() => onPageChange(page - 1)}

@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
-import Layout from '../components/Layout';
-import BookForm from '../components/books/BookForm';
-import BookTable from '../components/books/BookTable';
-import Pagination from '../components/books/Pagination';
-import GenreFilter from '../components/books/GenreFilter';
-import DeleteByIsbn from '../components/books/DeleteByIsbn';
+import Layout from '../components/common/Layout';
+import BookForm from '../components/bookForm/BookForm';
+import BookTable from '../components/bookTable/BookTable';
+import Pagination from '../components/bookTable/pagination/Pagination';
+import GenreFilter from '../components/genres/GenreFilter';
+import DeleteByIsbn from '../components/deleteByIsbn/DeleteByIsbn';
 import Spinner from '../components/common/Spinner';
 import { useNavigate } from 'react-router-dom';
 import { BookProvider, useBookContext } from '../context/BookContext';

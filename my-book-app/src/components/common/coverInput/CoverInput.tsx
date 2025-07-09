@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import type { CoverInput } from "../../types/books/CoverInput";
+import type { CoverInput } from "../../../types/books/CoverInput";
 
 export default function CoverInput({
   onValidFileSelect,

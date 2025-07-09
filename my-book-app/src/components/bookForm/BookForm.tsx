@@ -1,15 +1,14 @@
 import { useEffect, useState, Suspense, lazy, useRef } from "react";
-import { createBook } from "../../api/bookApi";
+import { createBook, uploadBookCover } from "../../api/bookApi";
 import { fetchGenresByUser } from "../../api/genreApi";
 import { getUserIdFromToken } from "../../utils/decodeToken";
 import type { Errors } from "../../types/books/BookErrors";
 import type { Props } from "../../types/books/BookFormProps";
 import Spinner from "../common/Spinner";
 import { useBookContext } from "../../context/BookContext";
-import { uploadBookCover } from "../../api/bookApi";
-import CoverInput from "../common/CoverInput";
+import CoverInput from "../common/coverInput/CoverInput";
 
-const LazyGenreModal = lazy(() => import("./genres/GenreModal"));
+const LazyGenreModal = lazy(() => import("../genres/GenreModal"));
 
 export default function BookForm({ onAdd }: Props) {
   const [formData, setFormData] = useState({
@@ -152,7 +151,7 @@ export default function BookForm({ onAdd }: Props) {
         onSubmit={handleSubmit}
         className="mb-6 max-w-6xl mx-auto flex flex-col gap-4"
       >
-        {/* Contenedor 2 columnas en md */}
+        {/* Container 2 columns in md */}
         <div className="flex flex-col md:flex-row gap-4">
           {/* ISBN */}
           <div className="w-full md:w-1/2">
@@ -236,13 +235,17 @@ export default function BookForm({ onAdd }: Props) {
 
         {/* Publication date + Cover side by side */}
         <div className="flex flex-col md:flex-row gap-4">
-          {/* Fecha */}
+          {/* Date */}
           <div className="w-full md:w-1/2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="publishedDate"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Publication date
             </label>
             <div className="flex items-center gap-2">
               <input
+                id="publishedDate"
                 name="publishedDate"
                 type="date"
                 value={formData.publishedDate}
@@ -279,7 +282,7 @@ export default function BookForm({ onAdd }: Props) {
           </div>
         </div>
 
-        {/* Synopsis (ocupa todo) */}
+        {/* Synopsis (occupies all) */}
         <div className="w-full">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Synopsis
@@ -299,7 +302,7 @@ export default function BookForm({ onAdd }: Props) {
           )}
         </div>
 
-        {/* Botón */}
+        {/* Button */}
         <div>
           <button
             type="submit"
