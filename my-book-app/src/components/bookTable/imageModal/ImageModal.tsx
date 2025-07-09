@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import type { ImageModal } from "../../types/books/ImageModal";
+import type { ImageModal } from "../../../types/books/ImageModal";
 
 export default function ImageModal({ src, onClose }: ImageModal) {
   useEffect(() => {

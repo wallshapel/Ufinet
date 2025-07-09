@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import Layout from '../components/common/Layout';
+import Layout from '../components/layout/Layout';
 import BookForm from '../components/bookForm/BookForm';
-import BookTable from '../components/bookTable/BookTable';
+import BookTable from '../components/bookTable/bookTable/BookTable';
 import Pagination from '../components/bookTable/pagination/Pagination';
 import GenreFilter from '../components/genres/GenreFilter';
 import DeleteByIsbn from '../components/deleteByIsbn/DeleteByIsbn';

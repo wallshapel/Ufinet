@@ -1,17 +1,17 @@
 import { useState, Suspense, lazy, useEffect } from "react";
-import { getUserIdFromToken } from "../../utils/decodeToken";
-import type { Book } from "../../types/books/Book";
-import { useBookContext } from "../../context/BookContext";
-import ImageModal from "./ImageModal";
+import { getUserIdFromToken } from "../../../utils/decodeToken";
+import type { Book } from "../../../types/books/Book";
+import { useBookContext } from "../../../context/BookContext";
+import ImageModal from "../imageModal/ImageModal";
 import {
   fetchBookByIsbnAndUserId,
   fetchProtectedBookCover,
   uploadBookCover,
-} from "../../api/bookApi";
-import CoverInput from "../common/coverInput/CoverInput";
-import ResponsiveSynopsis from "./ResponsiveSynopsis";
+} from "../../../api/bookApi";
+import CoverInput from "../../common/coverInput/CoverInput";
+import ResponsiveSynopsis from "../responsiveSynopsis/ResponsiveSynopsis";
 
-const LazyGenreModal = lazy(() => import("../genres/GenreModal"));
+const LazyGenreModal = lazy(() => import("../../genres/GenreModal"));
 
 export default function BookTable() {
   const { books, onDelete, onEdit, genres, refreshGenres } = useBookContext();
