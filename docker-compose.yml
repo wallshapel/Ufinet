@@ -1,14 +1,16 @@
 services:
   prueba-ufinet-db:
-    image: mcr.microsoft.com/mssql/server:latest
+    image: mariadb:latest
     container_name: prueba-ufinet-db
     environment:
-      ACCEPT_EULA: "Y"
-      SA_PASSWORD: "Prueba-Ufinet-123*"
+      MYSQL_ROOT_PASSWORD: "Prueba-Ufinet-123*"
+      MYSQL_DATABASE: "bookapp"
+      MYSQL_USER: "ufinet"
+      MYSQL_PASSWORD: "Prueba-Ufinet-123*"
     ports:
-      - "1433:1433"
+      - "3306:3306"
     volumes:
-      - prueba-ufinet-sql-server:/var/opt/mssql
+      - prueba-ufinet-mariadb:/var/lib/mysql
     networks:
       - app-network
 
@@ -21,8 +23,8 @@ services:
     depends_on:
       - prueba-ufinet-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:sqlserver://prueba-ufinet-db:1433;databaseName=bookapp;encrypt=true;trustServerCertificate=true
-      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://prueba-ufinet-db:3306/bookapp
+      - SPRING_DATASOURCE_USERNAME=ufinet
       - SPRING_DATASOURCE_PASSWORD=Prueba-Ufinet-123*
       - JWT_SECRET=4E6F795265616C6C79536563726574506C656173654368616E6765546869734B6579
     ports:
@@ -49,4 +51,4 @@ networks:
     driver: bridge
 
 volumes:
-  prueba-ufinet-sql-server:
+  prueba-ufinet-mariadb:

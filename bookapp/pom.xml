@@ -63,9 +63,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.microsoft.sqlserver</groupId>
-			<artifactId>mssql-jdbc</artifactId>
-			<version>12.4.2.jre11</version>
+			<groupId>org.mariadb.jdbc</groupId>
+			<artifactId>mariadb-java-client</artifactId>
+			<version>3.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.modelmapper</groupId>
