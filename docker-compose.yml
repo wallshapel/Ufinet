@@ -27,7 +27,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=ufinet
       - SPRING_DATASOURCE_PASSWORD=Prueba-Ufinet-123*
       - JWT_SECRET=4E6F795265616C6C79536563726574506C656173654368616E6765546869734B6579
-      - AWS_ORIGIN=http://3.150.27.70:5173
+      - AWS_ORIGIN=http://3.150.27.70:5173,http://localhost:5173
     ports:
       - "8080:8080"
     networks:
@@ -42,6 +42,12 @@ services:
     container_name: prueba-ufinet-frontend
     depends_on:
       - prueba-ufinet-backend
+    # Local
+    environment:
+    - VITE_API_BASE_URL=http://localhost:8080/api/v1
+    # AWS
+    # environment:
+    # - VITE_API_BASE_URL=http://3.150.27.70:8080/api/v1 
     ports:
       - "5173:80"
     networks:
