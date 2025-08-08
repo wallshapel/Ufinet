@@ -1,3 +1,4 @@
+// src/types/books/Book.ts
 export type Book = {
     isbn: string;
     title: string;

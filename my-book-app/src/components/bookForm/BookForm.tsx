@@ -1,31 +1,45 @@
+// src/components/books/BookForm.tsx
 import { useEffect, useState, Suspense, lazy, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { createBook, uploadBookCover } from "../../api/bookApi";
 import { fetchGenresByUser } from "../../api/genreApi";
 import { getUserIdFromToken } from "../../utils/decodeToken";
-import type { Errors } from "../../types/books/BookErrors";
 import type { Props } from "../../types/books/BookFormProps";
 import Spinner from "../common/Spinner";
 import { useBookContext } from "../../context/BookContext";
 import CoverInput from "../common/coverInput/CoverInput";
+import { bookFormSchema, type BookFormFields } from "../../schemas/bookFormSchema";
 
 const LazyGenreModal = lazy(() => import("../genres/GenreModal"));
 
 export default function BookForm({ onAdd }: Props) {
-  const [formData, setFormData] = useState({
-    isbn: "",
-    title: "",
-    genreId: "",
-    publishedDate: "",
-    synopsis: "",
-  });
-
   const { genres, setGenres, refreshGenres, refreshBooks } = useBookContext();
-  const [errors, setErrors] = useState<Errors>({});
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const isbnRef = useRef<HTMLInputElement>(null);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors }
+  } = useForm<BookFormFields>({
+    resolver: zodResolver(bookFormSchema),
+    defaultValues: {
+      isbn: "",
+      title: "",
+      genreId: "",
+      publishedDate: "",
+      synopsis: "",
+    }
+  });
+
+  // To be able to assign the manual ref and focus as before without losing the RHF ref
+  const isbnReg = register("isbn");
 
   useEffect(() => {
     isbnRef.current?.focus();
@@ -47,32 +61,7 @@ export default function BookForm({ onAdd }: Props) {
     };
   }, [loading]);
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" });
-  };
-
-  const validate = () => {
-    const newErrors: Errors = {};
-    if (!formData.isbn.trim()) newErrors.isbn = "The ISBN is required.";
-    if (!formData.title.trim()) newErrors.title = "The title is required.";
-    if (!formData.genreId) newErrors.genreId = "The genre is required.";
-    if (!formData.publishedDate)
-      newErrors.publishedDate = "The date is required.";
-    if (!formData.synopsis.trim())
-      newErrors.synopsis = "The synopsis is required.";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
-
+  const onSubmit = async (data: BookFormFields) => {
     const token = localStorage.getItem("token");
     const userId = token ? getUserIdFromToken(token) : null;
     if (userId === null) {
@@ -81,11 +70,11 @@ export default function BookForm({ onAdd }: Props) {
     }
 
     const bookToSend = {
-      isbn: formData.isbn,
-      title: formData.title,
-      genreId: parseInt(formData.genreId),
-      publishedDate: formData.publishedDate,
-      synopsis: formData.synopsis,
+      isbn: data.isbn,
+      title: data.title,
+      genreId: parseInt(data.genreId),
+      publishedDate: data.publishedDate,
+      synopsis: data.synopsis,
       userId,
     };
 
@@ -100,23 +89,16 @@ export default function BookForm({ onAdd }: Props) {
           await refreshBooks();
         } catch (error) {
           console.error("Error uploading the cover:", error);
-          setErrors((prev) => ({
-            ...prev,
-            coverFile: "An error occurred while uploading the image",
-          }));
+          setError("coverFile", {
+            type: "manual",
+            message: "An error occurred while uploading the image",
+          });
           return;
         }
       }
 
-      setFormData({
-        isbn: "",
-        title: "",
-        genreId: "",
-        publishedDate: "",
-        synopsis: "",
-      });
+      reset(); // clear the form
       setCoverFile(null);
-      setErrors({});
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (error: any) {
@@ -124,11 +106,20 @@ export default function BookForm({ onAdd }: Props) {
       const data = error.response?.data;
 
       if (status === 409) {
-        setErrors({ isbn: data.message || "Duplicate book" });
+        setError("isbn", {
+          type: "manual",
+          message: data?.message || "Duplicate book",
+        });
       } else if (status === 404) {
-        alert(data.message || "User not found");
-      } else if (status === 400 && typeof data === "object") {
-        setErrors(data);
+        alert(data?.message || "User not found");
+      } else if (status === 400 && typeof data === "object" && data) {
+        // We assume that the backend returns an object { field: ‘message’ }
+        Object.entries(data).forEach(([field, message]) => {
+          setError(field as keyof BookFormFields, {
+            type: "manual",
+            message: String(message),
+          });
+        });
       } else {
         console.error("Unknown error when creating book:", error);
       }
@@ -148,7 +139,7 @@ export default function BookForm({ onAdd }: Props) {
       )}
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         className="mb-6 max-w-6xl mx-auto flex flex-col gap-4"
       >
         {/* Container 2 columns in md */}
@@ -160,18 +151,19 @@ export default function BookForm({ onAdd }: Props) {
             </label>
             <div className="flex items-center gap-2">
               <input
-                ref={isbnRef}
-                name="isbn"
+                {...isbnReg}
+                ref={(el) => {
+                  isbnReg.ref(el);
+                  isbnRef.current = el || null;
+                }}
                 type="text"
                 placeholder="ISBN"
-                value={formData.isbn}
-                onChange={handleChange}
                 className="p-2 border border-gray-300 rounded w-full"
               />
               <span className="text-red-600 text-lg">*</span>
             </div>
             {errors.isbn && (
-              <p className="text-red-600 text-sm mt-1">{errors.isbn}</p>
+              <p className="text-red-600 text-sm mt-1">{errors.isbn.message}</p>
             )}
           </div>
 
@@ -182,22 +174,20 @@ export default function BookForm({ onAdd }: Props) {
             </label>
             <div className="flex items-center gap-2">
               <input
-                name="title"
+                {...register("title")}
                 type="text"
                 placeholder="Title"
-                value={formData.title}
-                onChange={handleChange}
                 className="p-2 border border-gray-300 rounded w-full"
               />
               <span className="text-red-600 text-lg">*</span>
             </div>
             {errors.title && (
-              <p className="text-red-600 text-sm mt-1">{errors.title}</p>
+              <p className="text-red-600 text-sm mt-1">{errors.title.message}</p>
             )}
           </div>
         </div>
 
-        {/* Genre + botón "+" */}
+        {/* Genre + button "+" */}
         <div className="flex flex-col md:flex-row gap-2 items-start md:items-end">
           <div className="w-full md:w-1/2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -205,9 +195,7 @@ export default function BookForm({ onAdd }: Props) {
             </label>
             <div className="flex items-center gap-2">
               <select
-                name="genreId"
-                value={formData.genreId}
-                onChange={handleChange}
+                {...register("genreId")}
                 className="p-2 border border-gray-300 rounded w-full"
               >
                 <option value="">Select a genre</option>
@@ -220,7 +208,7 @@ export default function BookForm({ onAdd }: Props) {
               <span className="text-red-600 text-lg">*</span>
             </div>
             {errors.genreId && (
-              <p className="text-red-600 text-sm mt-1">{errors.genreId}</p>
+              <p className="text-red-600 text-sm mt-1">{errors.genreId.message}</p>
             )}
           </div>
 
@@ -245,18 +233,16 @@ export default function BookForm({ onAdd }: Props) {
             </label>
             <div className="flex items-center gap-2">
               <input
+                {...register("publishedDate")}
                 id="publishedDate"
-                name="publishedDate"
                 type="date"
-                value={formData.publishedDate}
-                onChange={handleChange}
                 className="p-2 border border-gray-300 rounded w-full"
               />
               <span className="text-red-600 text-lg">*</span>
             </div>
             {errors.publishedDate && (
               <p className="text-red-600 text-sm mt-1">
-                {errors.publishedDate}
+                {errors.publishedDate.message}
               </p>
             )}
           </div>
@@ -270,14 +256,11 @@ export default function BookForm({ onAdd }: Props) {
               currentFile={coverFile || undefined}
               onValidFileSelect={(file) => setCoverFile(file)}
               showError={(msg) =>
-                setErrors((prev) => ({
-                  ...prev,
-                  coverFile: msg,
-                }))
+                setError("coverFile", { type: "manual", message: msg })
               }
             />
             {errors.coverFile && (
-              <p className="text-red-600 text-sm mt-1">{errors.coverFile}</p>
+              <p className="text-red-600 text-sm mt-1">{errors.coverFile.message}</p>
             )}
           </div>
         </div>
@@ -289,16 +272,14 @@ export default function BookForm({ onAdd }: Props) {
           </label>
           <div className="flex items-center gap-2">
             <textarea
-              name="synopsis"
+              {...register("synopsis")}
               placeholder="Synopsis"
-              value={formData.synopsis}
-              onChange={handleChange}
               className="p-2 border border-gray-300 rounded resize-y min-h-[120px] max-h-[300px] w-full"
             />
             <span className="text-red-600 text-lg">*</span>
           </div>
           {errors.synopsis && (
-            <p className="text-red-600 text-sm mt-1">{errors.synopsis}</p>
+            <p className="text-red-600 text-sm mt-1">{errors.synopsis.message}</p>
           )}
         </div>
 
@@ -344,7 +325,7 @@ export default function BookForm({ onAdd }: Props) {
             onClose={() => setShowModal(false)}
             onGenreCreated={async (newGenre) => {
               await refreshGenres();
-              setFormData((prev) => ({
+              reset((prev) => ({
                 ...prev,
                 genreId: String(newGenre.id),
               }));
