@@ -1,7 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { createGenre } from "../../api/genreApi";
 import { getUserIdFromToken } from "../../utils/decodeToken";
 import Spinner from "../common/Spinner";
+import {
+  genreModalSchema,
+  type GenreModalFields,
+} from "../../schemas/genreModalSchema";
 
 interface Props {
   onClose: () => void;
@@ -9,38 +15,41 @@ interface Props {
 }
 
 export default function GenreModal({ onClose, onGenreCreated }: Props) {
-  const [name, setName] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+    setFocus,
+    reset,
+  } = useForm<GenreModalFields>({
+    resolver: zodResolver(genreModalSchema),
+    defaultValues: { name: "" },
+  });
+
+  // Focus on input when modal opens
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    setFocus("name");
+  }, [setFocus]);
 
+  // Close on Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
+      if (e.key === "Escape") onClose();
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) {
-      setError("The gender name is mandatory.");
-      return;
-    }
-
+  const onSubmit = async ({ name }: GenreModalFields) => {
     const token = localStorage.getItem("token");
     const userId = token ? getUserIdFromToken(token) : null;
+
     if (!token || userId === null) {
-      setError("Unauthenticated user");
+      setError("name", { type: "manual", message: "Unauthenticated user" });
       return;
     }
 
@@ -48,24 +57,36 @@ export default function GenreModal({ onClose, onGenreCreated }: Props) {
       setLoading(true);
       const createdGenre = await createGenre({ name, userId });
       setSuccess(true);
-      setTimeout(() => {
-        onGenreCreated(createdGenre);
-      }, 1000);
+      // Small delay to show success feedback before closing/propagating
+      setTimeout(() => onGenreCreated(createdGenre), 1000);
     } catch (err: any) {
-      const status = err.response?.status;
-      const data = err.response?.data;
+      const status = err?.response?.status;
+      const data = err?.response?.data;
 
       if (status === 409) {
-        setError(data.message || "Duplicate gender");
+        setError("name", {
+          type: "manual",
+          message: data?.message || "Duplicate gender",
+        });
       } else if (status === 404) {
-        setError(data.message || "User not found");
+        setError("name", {
+          type: "manual",
+          message: data?.message || "User not found",
+        });
       } else if (status === 400 && typeof data === "object") {
-        setError(data.detail || "Malformed request");
+        setError("name", {
+          type: "manual",
+          message: data?.detail || "Malformed request",
+        });
       } else {
-        setError("Unexpected error when creating the gender");
+        setError("name", {
+          type: "manual",
+          message: "Unexpected error when creating the gender",
+        });
       }
     } finally {
       setLoading(false);
+      reset({ name: "" });
     }
   };
 
@@ -75,6 +96,7 @@ export default function GenreModal({ onClose, onGenreCreated }: Props) {
     <div className="fixed inset-0 bg-white bg-opacity-40 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-md">
         <h2 className="text-lg font-bold mb-4">New genre</h2>
+
         {success && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded text-sm mb-4 text-center">
             Gender successfully created.
@@ -82,19 +104,16 @@ export default function GenreModal({ onClose, onGenreCreated }: Props) {
         )}
 
         {!success && (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <input
-              ref={inputRef}
               type="text"
               placeholder="Gender name"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                setError("");
-              }}
               className="w-full p-2 border border-gray-300 rounded"
+              {...register("name")}
             />
-            {error && <p className="text-red-600 text-sm">{error}</p>}
+            {errors.name && (
+              <p className="text-red-600 text-sm">{errors.name.message}</p>
+            )}
 
             <div className="flex justify-end gap-2">
               <button
