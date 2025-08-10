@@ -1,8 +1,9 @@
 /// <reference types="vitest" />
+// my-book-app/src/components/deleteByIsbn/DeleteByIsbn.test.tsx
 
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import DeleteByIsbn from "./DeleteByIsbn";
-import { vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { Book } from "../../types/books/Book";
 
 // Mock fetchBookByIsbnAndUserId
@@ -14,7 +15,7 @@ import { fetchBookByIsbnAndUserId } from "../../api/bookApi";
 
 describe("DeleteByIsbn", () => {
   const mockBook: Book = {
-    isbn: "1234567890",
+    isbn: "9780306406157",
     title: "Mock Book",
     genre: "Fiction",
     publishedDate: "2022-01-01",
@@ -24,14 +25,14 @@ describe("DeleteByIsbn", () => {
     createdAt: new Date().toISOString(),
   };
 
-  const mockOnDelete = vi.fn();
+  const mockOnDelete = vi.fn().mockResolvedValue(undefined);
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   test("renders input and search button", () => {
-    render(<DeleteByIsbn onDelete={mockOnDelete} books={[]} />);
+    render(<DeleteByIsbn onDelete={mockOnDelete} />);
     expect(
       screen.getByPlaceholderText(/ISBN of the book/i)
     ).toBeInTheDocument();
@@ -39,9 +40,7 @@ describe("DeleteByIsbn", () => {
   });
 
   test("shows error if ISBN is empty", async () => {
-    const { container } = render(
-      <DeleteByIsbn onDelete={mockOnDelete} books={[]} />
-    );
+    const { container } = render(<DeleteByIsbn onDelete={mockOnDelete} />);
 
     const form = container.querySelector("form")!;
     fireEvent.submit(form);
@@ -52,7 +51,7 @@ describe("DeleteByIsbn", () => {
   });
 
   test("shows error if ISBN is too short", async () => {
-    render(<DeleteByIsbn onDelete={mockOnDelete} books={[]} />);
+    render(<DeleteByIsbn onDelete={mockOnDelete} />);
     fireEvent.change(screen.getByPlaceholderText(/ISBN of the book/i), {
       target: { value: "123" },
     });
@@ -68,7 +67,7 @@ describe("DeleteByIsbn", () => {
       fetchBookByIsbnAndUserId as ReturnType<typeof vi.fn>
     ).mockResolvedValueOnce(mockBook);
 
-    render(<DeleteByIsbn onDelete={mockOnDelete} books={[]} />);
+    render(<DeleteByIsbn onDelete={mockOnDelete} />);
     fireEvent.change(screen.getByPlaceholderText(/ISBN of the book/i), {
       target: { value: mockBook.isbn },
     });
@@ -95,9 +94,9 @@ describe("DeleteByIsbn", () => {
       response: { status: 404 },
     });
 
-    render(<DeleteByIsbn onDelete={mockOnDelete} books={[]} />);
+    render(<DeleteByIsbn onDelete={mockOnDelete} />);
     fireEvent.change(screen.getByPlaceholderText(/ISBN of the book/i), {
-      target: { value: "notfoundisbn" },
+      target: { value: "9780306406157" },
     });
     fireEvent.click(screen.getByRole("button", { name: /search/i }));
 
@@ -111,9 +110,9 @@ describe("DeleteByIsbn", () => {
       fetchBookByIsbnAndUserId as ReturnType<typeof vi.fn>
     ).mockRejectedValueOnce(new Error("Server crash"));
 
-    render(<DeleteByIsbn onDelete={mockOnDelete} books={[]} />);
+    render(<DeleteByIsbn onDelete={mockOnDelete} />);
     fireEvent.change(screen.getByPlaceholderText(/ISBN of the book/i), {
-      target: { value: "1234567890" },
+      target: { value: "9780306406157" },
     });
     fireEvent.click(screen.getByRole("button", { name: /search/i }));
 

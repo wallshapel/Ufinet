@@ -74,6 +74,7 @@ export const bookFormSchema = z.object({
   title: z
     .string()
     .trim()
+    .min(1, "The title is required.")
     .min(2, "Title must have at least 2 characters.")
     .max(200, "Title must have at most 200 characters."),
   genreId: z
@@ -89,6 +90,7 @@ export const bookFormSchema = z.object({
   synopsis: z
     .string()
     .trim()
+    .min(1, "The synopsis is required.")
     .min(10, "Synopsis must have at least 10 characters.")
     .max(5000, "Synopsis is too long."),
 });

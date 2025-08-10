@@ -1,138 +1,133 @@
-import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Spinner from '../components/common/Spinner';
-import type { RegisterForm, FormErrors } from '../types/RegisterForm';
-import { registerUser } from '../api/authApi';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Spinner from "../components/common/Spinner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { registerUser } from "../api/authApi";
+import {
+  registerSchema,
+  type RegisterFormFields,
+} from "../schemas/registerSchema";
 
 export default function Register() {
-    const [form, setForm] = useState<RegisterForm>({
-        username: '',
-        email: '',
-        password: ''
-    });
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-    const [errors, setErrors] = useState<FormErrors>({});
-    const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
-    const userNameRef = useRef<HTMLInputElement>(null);
+  const {
+    register,
+    handleSubmit,
+    setError,
+    setFocus,
+    formState: { errors },
+  } = useForm<RegisterFormFields>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { username: "", email: "", password: "" },
+  });
 
-    useEffect(() => {
-        userNameRef.current?.focus();
-    }, []);
+  // Focus username on mount
+  useEffect(() => {
+    setFocus("username");
+  }, [setFocus]);
 
-    const validate = (): FormErrors => {
-        const newErrors: FormErrors = {};
+  const onSubmit = async (data: RegisterFormFields) => {
+    setLoading(true);
+    try {
+      await registerUser({
+        username: data.username,
+        email: data.email,
+        password: data.password,
+      });
+      navigate("/");
+    } catch (error: any) {
+      console.error(error);
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message;
 
-        if (!form.username.trim())
-            newErrors.username = 'The user name is mandatory.';
+      // Show backend/general error at the top
+      setError("root.serverError", {
+        type: "manual",
+        message:
+          backendMessage ||
+          "Could not connect to the server. Please try again later.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        if (!form.email.trim())
-            newErrors.email = 'The e-mail address is compulsory.';
-        else if (!/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/.test(form.email))
-            newErrors.email = 'Invalid e-mail address.';
+  if (loading) return <Spinner />;
 
-        if (!form.password)
-            newErrors.password = 'The password is mandatory.';
-        else if (form.password.length < 6)
-            newErrors.password = 'Must be at least 6 characters long.';
-        else if (!/[A-Za-z]/.test(form.password))
-            newErrors.password = 'Must contain at least one letter.';
-        else if (!/\d/.test(form.password))
-            newErrors.password = 'Must contain at least one number.';
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-blue-50 text-blue-900">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-white p-8 rounded shadow-md w-full max-w-sm"
+      >
+        <h2 className="text-xl font-bold mb-6 text-center">Register</h2>
 
-        return newErrors;
-    };
+        {errors.root?.serverError?.message && (
+          <p className="text-sm text-red-600 mt-0 mb-4 text-center">
+            {errors.root.serverError.message}
+          </p>
+        )}
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
+        <input
+          type="text"
+          placeholder="Username"
+          className="w-full p-2 border border-gray-300 rounded"
+          {...register("username")}
+        />
+        {errors.username && (
+          <p className="text-sm text-red-600 mt-1">{errors.username.message}</p>
+        )}
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const validationErrors = validate();
+        <input
+          type="email"
+          placeholder="E-mail address"
+          className="w-full p-2 mt-4 border border-gray-300 rounded"
+          {...register("email")}
+        />
+        {errors.email && (
+          <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+        )}
 
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            return;
-        }
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full p-2 mt-4 border border-gray-300 rounded"
+          {...register("password")}
+        />
+        {errors.password && (
+          <p className="text-sm text-red-600 mt-1">{errors.password.message}</p>
+        )}
 
-        setLoading(true);
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full mt-6 font-semibold py-2 rounded ${
+            loading
+              ? "bg-blue-300 cursor-not-allowed text-white"
+              : "bg-blue-700 hover:bg-blue-800 text-white"
+          }`}
+        >
+          Create an account
+        </button>
 
-        try {
-            await registerUser(form);
-            setLoading(false);
-            navigate('/');
-        } catch (error: any) {
-            console.error(error);
-            setLoading(false);
-            setErrors({
-                general: error.message || 'Could not connect to the server. Please try again later.'
-            });
-        }
-    };
-
-    if (loading) return <Spinner />;
-
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-blue-50 text-blue-900">
-            <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-sm">
-                <h2 className="text-xl font-bold mb-6 text-center">Register</h2>
-
-                <input
-                    ref={userNameRef}
-                    name="username"
-                    type="text"
-                    placeholder="Username"
-                    value={form.username}
-                    onChange={handleChange}
-                    className="w-full p-2 border border-gray-300 rounded"
-                />
-                {errors.username && <p className="text-sm text-red-600 mt-1">{errors.username}</p>}
-
-                <input
-                    name="email"
-                    type="email"
-                    placeholder="E-mail address"
-                    value={form.email}
-                    onChange={handleChange}
-                    className="w-full p-2 mt-4 border border-gray-300 rounded"
-                />
-                {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
-
-                <input
-                    name="password"
-                    type="password"
-                    placeholder="Password"
-                    value={form.password}
-                    onChange={handleChange}
-                    className="w-full p-2 mt-4 border border-gray-300 rounded"
-                />
-                {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
-
-                {errors.general && <p className="text-sm text-red-600 mt-4 text-center">{errors.general}</p>}
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className={`w-full mt-6 font-semibold py-2 rounded ${loading
-                        ? 'bg-blue-300 cursor-not-allowed text-white'
-                        : 'bg-blue-700 hover:bg-blue-800 text-white'
-                        }`}
-                >
-                    Create an account
-                </button>
-
-                <div className="mt-4 text-center">
-                    <span className="text-sm text-gray-700">Already have an account?</span>{' '}
-                    <button
-                        type="button"
-                        onClick={() => navigate('/')}
-                        className="text-blue-700 hover:underline font-medium text-sm"
-                    >
-                        Login
-                    </button>
-                </div>
-            </form>
+        <div className="mt-4 text-center">
+          <span className="text-sm text-gray-700">
+            Already have an account?
+          </span>{" "}
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="text-blue-700 hover:underline font-medium text-sm"
+          >
+            Login
+          </button>
         </div>
-    );
+      </form>
+    </div>
+  );
 }

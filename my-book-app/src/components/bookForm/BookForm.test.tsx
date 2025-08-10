@@ -1,16 +1,17 @@
 /// <reference types="vitest" />
+// src/components/bookForm/BookForm.test.tsx
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import BookForm from "./BookForm";
 import { BookContext } from "../../context/BookContext";
 import type { BookContextType } from "../../types/contexts/BookContextType";
-import { vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 // Mock of the bookApi functions
 vi.mock("../../api/bookApi", () => ({
   createBook: vi.fn().mockResolvedValue({
-    isbn: "1234567890",
+    isbn: "9780306406157",
     title: "Test Book",
     genreId: 1,
     genre: "Fiction",
@@ -113,7 +114,7 @@ describe("BookForm", () => {
       </BookContext.Provider>
     );
 
-    await user.type(screen.getByPlaceholderText(/ISBN/i), "1234567890");
+    await user.type(screen.getByPlaceholderText(/ISBN/i), "9780306406157");
     await user.type(screen.getByPlaceholderText(/Title/i), "Test Book");
     await user.selectOptions(screen.getByRole("combobox"), "1");
     await user.type(screen.getByLabelText(/Publication date/i), "2023-01-01");
@@ -131,7 +132,7 @@ describe("BookForm", () => {
 
     expect(mockOnAdd).toHaveBeenCalledWith(
       expect.objectContaining({
-        isbn: "1234567890",
+        isbn: "9780306406157",
         title: "Test Book",
         genreId: 1,
       })
@@ -154,7 +155,7 @@ describe("BookForm", () => {
     );
 
     // Fill form
-    await user.type(screen.getByPlaceholderText(/ISBN/i), "1234567890");
+    await user.type(screen.getByPlaceholderText(/ISBN/i), "9780306406157");
     await user.type(screen.getByPlaceholderText(/Title/i), "Test Book");
     await user.selectOptions(screen.getByRole("combobox"), "1");
     await user.type(screen.getByLabelText(/Publication date/i), "2023-01-01");
@@ -198,7 +199,7 @@ test("should show error and not submit if cover image has invalid type", async (
   );
 
   // Fill the form
-  await user.type(screen.getByPlaceholderText(/ISBN/i), "1234567890");
+  await user.type(screen.getByPlaceholderText(/ISBN/i), "9780306406157");
   await user.type(screen.getByPlaceholderText(/Title/i), "Test Book");
   await user.selectOptions(screen.getByRole("combobox"), "1");
   await user.type(screen.getByLabelText(/Publication date/i), "2023-01-01");
@@ -245,7 +246,7 @@ test("should show error and not submit if cover image exceeds max size", async (
   );
 
   // Fill other fields
-  await user.type(screen.getByPlaceholderText(/ISBN/i), "1234567890");
+  await user.type(screen.getByPlaceholderText(/ISBN/i), "9780306406157");
   await user.type(screen.getByPlaceholderText(/Title/i), "Test Book");
   await user.selectOptions(screen.getByRole("combobox"), "1");
   await user.type(screen.getByLabelText(/Publication date/i), "2023-01-01");
