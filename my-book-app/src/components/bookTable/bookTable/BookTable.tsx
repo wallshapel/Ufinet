@@ -1,4 +1,11 @@
-import { useState, Suspense, lazy, useEffect } from "react";
+import {
+  useState,
+  Suspense,
+  lazy,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import { getUserIdFromToken } from "../../../utils/decodeToken";
 import type { Book } from "../../../types/books/Book";
 import { useBookContext } from "../../../context/BookContext";
@@ -11,10 +18,20 @@ import {
 import CoverInput from "../../common/coverInput/CoverInput";
 import ResponsiveSynopsis from "../responsiveSynopsis/ResponsiveSynopsis";
 
+/** TanStack Table */
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  type ColumnDef,
+} from "@tanstack/react-table";
+import React from "react";
+
 const LazyGenreModal = lazy(() => import("../../genres/GenreModal"));
 
 export default function BookTable() {
-  const { books, onDelete, onEdit, genres, refreshGenres } = useBookContext();
+  const { books, onDelete, onEdit, genres, refreshGenres, setBooks } =
+    useBookContext();
 
   const [editingIsbn, setEditingIsbn] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<
@@ -27,16 +44,13 @@ export default function BookTable() {
   const [showModal, setShowModal] = useState(false);
   const [selectedCover, setSelectedCover] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const { setBooks } = useBookContext();
 
   const showTemporaryMessage = (
     text: string,
     type: "success" | "error" = "success"
   ) => {
     if (!text) return;
-
     setMessage({ type, text });
-
     if (type === "success") {
       setTimeout(() => setMessage(null), 3000);
     }
@@ -61,17 +75,20 @@ export default function BookTable() {
     setEditForm({});
   };
 
-  const handleEditChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setEditForm({
-      ...editForm,
-      [name]: name === "genreId" ? parseInt(value, 10) : value,
-    });
-  };
+  const handleEditChange = useCallback(
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >
+    ) => {
+      const { name, value } = e.target;
+      setEditForm((prev) => ({
+        ...prev,
+        [name]: name === "genreId" ? parseInt(value, 10) : value,
+      }));
+    },
+    []
+  );
 
   const confirmEdit = async () => {
     const { isbn, title, genreId, publishedDate, synopsis } = editForm;
@@ -108,12 +125,10 @@ export default function BookTable() {
       if (editForm.coverFile) {
         try {
           await uploadBookCover(isbn, editForm.coverFile);
-
-          // 🆕 Force reload of updated book to get correct coverImagePath
+          // Force reload to refresh cover path
           const updated = await fetchBookByIsbnAndUserId(isbn);
-
           setBooks((prev: Book[]) =>
-            prev.map((book: Book) => (book.isbn === isbn ? updated : book))
+            prev.map((b) => (b.isbn === isbn ? updated : b))
           );
         } catch (error) {
           console.error("Error uploading cover page:", error);
@@ -177,7 +192,194 @@ export default function BookTable() {
     };
 
     getImage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCover]);
+
+  /** Column definitions for TanStack Table */
+  const columns = useMemo<ColumnDef<Book>[]>(
+    () => [
+      {
+        header: "ISBN",
+        accessorKey: "isbn",
+        cell: ({ row }) => row.original.isbn,
+      },
+      {
+        header: "Title",
+        accessorKey: "title",
+        cell: ({ row }) => {
+          const book = row.original;
+          if (editingIsbn === book.isbn) {
+            return (
+              <input
+                name="title"
+                value={editForm.title ?? ""}
+                onChange={handleEditChange}
+                className="p-2 border border-gray-300 rounded w-full"
+              />
+            );
+          }
+          return book.title;
+        },
+      },
+      {
+        header: "Genre",
+        accessorKey: "genre",
+        cell: ({ row }) => {
+          const book = row.original;
+          if (editingIsbn === book.isbn) {
+            return (
+              <div className="flex items-center gap-2">
+                <select
+                  name="genreId"
+                  value={editForm.genreId ?? ""}
+                  onChange={handleEditChange}
+                  className="p-2 border border-gray-300 rounded w-full"
+                >
+                  <option value="">Select a genre</option>
+                  {genres.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(true)}
+                  className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-xs"
+                >
+                  +
+                </button>
+              </div>
+            );
+          }
+          return book.genre;
+        },
+      },
+      {
+        header: "Published",
+        accessorKey: "publishedDate",
+        cell: ({ row }) => {
+          const book = row.original;
+          if (editingIsbn === book.isbn) {
+            return (
+              <input
+                name="publishedDate"
+                type="date"
+                value={editForm.publishedDate ?? ""}
+                onChange={handleEditChange}
+                className="p-2 border border-gray-300 rounded w-full"
+              />
+            );
+          }
+          return (
+            <span className="whitespace-nowrap">{book.publishedDate}</span>
+          );
+        },
+      },
+      {
+        header: "Synopsis",
+        accessorKey: "synopsis",
+        cell: ({ row }) => {
+          const book = row.original;
+          if (editingIsbn === book.isbn) {
+            return (
+              <textarea
+                name="synopsis"
+                value={editForm.synopsis ?? ""}
+                onChange={handleEditChange}
+                className="p-2 border border-gray-300 rounded w-full resize-y min-h-[120px] max-h-[300px]"
+              />
+            );
+          }
+          return (
+            <div className="max-w-xs">
+              <span className="hidden md:inline">{book.synopsis}</span>
+              <ResponsiveSynopsis text={book.synopsis} />
+            </div>
+          );
+        },
+      },
+      {
+        header: "Cover",
+        id: "cover",
+        cell: ({ row }) => {
+          const book = row.original;
+          if (editingIsbn === book.isbn) {
+            return (
+              <CoverInput
+                currentFile={editForm.coverFile}
+                onValidFileSelect={(file) =>
+                  setEditForm((prev) => ({
+                    ...prev,
+                    coverFile: file,
+                  }))
+                }
+                showError={(msg) => showTemporaryMessage(msg, "error")}
+              />
+            );
+          }
+          return book.coverImagePath ? (
+            <button
+              onClick={() => setSelectedCover(book.coverImagePath!)}
+              className="text-indigo-600 hover:underline text-sm"
+            >
+              Show
+            </button>
+          ) : (
+            <span className="text-gray-400 text-sm italic">No cover</span>
+          );
+        },
+      },
+      {
+        header: "Options",
+        id: "options",
+        cell: ({ row }) => {
+          const book = row.original;
+          if (editingIsbn === book.isbn) {
+            return (
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  onClick={confirmEdit}
+                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={cancelEdit}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded text-xs"
+                >
+                  Cancel
+                </button>
+              </div>
+            );
+          }
+          return (
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <button
+                onClick={() => startEdit(book)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(book.isbn)}
+                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs"
+              >
+                Delete
+              </button>
+            </div>
+          );
+        },
+      },
+    ],
+    [editingIsbn, editForm, genres] // deps for editing UI
+  );
+
+  const table = useReactTable({
+    data: books,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   return (
     <>
@@ -201,17 +403,31 @@ export default function BookTable() {
         ) : (
           <table className="min-w-full text-sm bg-white border border-gray-300">
             <thead className="bg-gray-100 text-left">
-              <tr>
-                <th className="px-4 py-2 border whitespace-nowrap">ISBN</th>
-                <th className="px-4 py-2 border">Title</th>
-                <th className="px-4 py-2 border">Genre</th>
-                <th className="px-4 py-2 border whitespace-nowrap">
-                  Published
-                </th>
-                <th className="px-4 py-2 border">Synopsis</th>
-                <th className="px-4 py-2 border text-center">Cover</th>
-                <th className="px-4 py-2 border text-center">Options</th>
-              </tr>
+              {table.getHeaderGroups().map((hg) => (
+                <tr key={hg.id}>
+                  {hg.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className={`px-4 py-2 border ${
+                        header.column.columnDef.header === "ISBN" ||
+                        header.column.columnDef.header === "Published"
+                          ? "whitespace-nowrap"
+                          : ""
+                      } ${
+                        header.column.columnDef.header === "Cover" ||
+                        header.column.columnDef.header === "Options"
+                          ? "text-center"
+                          : ""
+                      }`}
+                    >
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
             </thead>
             <tbody>
               {books.map((book: Book) => (
@@ -221,11 +437,11 @@ export default function BookTable() {
                   </td>
 
                   {editingIsbn === book.isbn ? (
-                    <>
+                    <React.Fragment key={`edit-${book.isbn}`}>
                       <td className="px-4 py-2 border">
                         <input
                           name="title"
-                          value={editForm.title || ""}
+                          value={editForm.title ?? ""}
                           onChange={handleEditChange}
                           className="p-2 border border-gray-300 rounded w-full"
                         />
@@ -235,7 +451,7 @@ export default function BookTable() {
                         <div className="flex items-center gap-2">
                           <select
                             name="genreId"
-                            value={editForm.genreId || ""}
+                            value={editForm.genreId ?? ""}
                             onChange={handleEditChange}
                             className="p-2 border border-gray-300 rounded w-full"
                           >
@@ -260,7 +476,7 @@ export default function BookTable() {
                         <input
                           name="publishedDate"
                           type="date"
-                          value={editForm.publishedDate || ""}
+                          value={editForm.publishedDate ?? ""}
                           onChange={handleEditChange}
                           className="p-2 border border-gray-300 rounded w-full"
                         />
@@ -269,7 +485,7 @@ export default function BookTable() {
                       <td className="px-4 py-2 border">
                         <textarea
                           name="synopsis"
-                          value={editForm.synopsis || ""}
+                          value={editForm.synopsis ?? ""}
                           onChange={handleEditChange}
                           className="p-2 border border-gray-300 rounded w-full resize-y min-h-[120px] max-h-[300px]"
                         />
@@ -306,9 +522,9 @@ export default function BookTable() {
                           </button>
                         </div>
                       </td>
-                    </>
+                    </React.Fragment>
                   ) : (
-                    <>
+                    <React.Fragment key={`view-${book.isbn}`}>
                       <td className="px-4 py-2 border">{book.title}</td>
                       <td className="px-4 py-2 border">{book.genre}</td>
                       <td className="px-4 py-2 border whitespace-nowrap">
@@ -355,7 +571,7 @@ export default function BookTable() {
                           </button>
                         </div>
                       </td>
-                    </>
+                    </React.Fragment>
                   )}
                 </tr>
               ))}
